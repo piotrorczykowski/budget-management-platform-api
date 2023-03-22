@@ -1,1 +1,1 @@
-# budget-managment-platform-api
+# budget-management-platform-api

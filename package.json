@@ -1,8 +1,8 @@
 {
-    "name": "budget-managment-platform-api",
+    "name": "budget-management-platform-api",
     "version": "1.0.0",
     "main": "index.js",
-    "repository": "git@github.com:piotrorczykowski/budget-managment-platform-api.git",
+    "repository": "git@github.com:piotrorczykowski/budget-management-platform-api.git",
     "author": "Piotr Orczykowski <orczykowski.peter@gmail.com>",
     "license": "MIT",
     "devDependencies": {

@@ -7,6 +7,7 @@
     "license": "MIT",
     "devDependencies": {
         "@types/koa": "^2.13.5",
+        "prettier": "2.8.7",
         "ts-node-dev": "^2.0.0",
         "typescript": "^5.0.2"
     },
@@ -19,6 +20,8 @@
         "koa": "^2.14.1"
     },
     "scripts": {
-        "dev": "ts-node-dev --inspect -- src/server.ts"
+        "dev": "ts-node-dev --inspect -- src/server.ts",
+        "lint": "prettier --check .",
+        "format": "prettier --write ."
     }
 }

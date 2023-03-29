@@ -37,6 +37,8 @@
     ],
     "scripts": {
         "dev": "ts-node-dev --inspect -- src/server.ts",
-        "prettier": "pretty-quick --staged"
+        "prettier": "pretty-quick --staged",
+        "migration:generate": "npx mikro-orm migration:create",
+        "migration:run": "npx mikro-orm migration:up"
     }
 }

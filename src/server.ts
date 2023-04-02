@@ -2,21 +2,19 @@ import dotenv from 'dotenv'
 dotenv.config()
 import 'reflect-metadata'
 import Koa from 'koa'
-import { createContainer, Lifetime } from 'awilix'
+import { AwilixContainer } from 'awilix'
 import { loadControllers, scopePerRequest } from 'awilix-koa'
+import { MikroORM } from '@mikro-orm/core'
+import { MySqlDriver } from '@mikro-orm/mysql'
+import _ from 'lodash'
 import initializeORM from './connection'
+import { initContainer } from './awilix'
 import { config } from './config'
 
 initializeORM()
-    .then(async () => {
-        const app = new Koa()
-        const container = createContainer()
-
-        const servicesPath: string = './modules/**/*Service.ts'
-        container.loadModules([[servicesPath, Lifetime.SCOPED]], {
-            cwd: __dirname,
-            formatName: 'camelCase',
-        })
+    .then(async (orm: MikroORM<MySqlDriver>) => {
+        const app: Koa = new Koa()
+        const container: AwilixContainer = await initContainer(orm)
 
         app.use(scopePerRequest(container))
 

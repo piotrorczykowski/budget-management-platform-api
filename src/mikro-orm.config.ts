@@ -1,7 +1,8 @@
 import { Options } from '@mikro-orm/core'
 import { config } from './config'
+import { MySqlDriver } from '@mikro-orm/mysql'
 
-const ormConfig: Options = {
+const ormConfig: Options<MySqlDriver> = {
     type: 'mysql',
     dbName: config.dbName,
     host: config.dbHost,
@@ -12,6 +13,7 @@ const ormConfig: Options = {
     entities: ['./dist/database/entities'],
     forceUtcTimezone: true,
     tsNode: true,
+    allowGlobalContext: true,
     debug: true,
     migrations: {
         tableName: 'mikro_orm_migrations',

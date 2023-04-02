@@ -21,6 +21,7 @@
         "awilix": "^8.0.0",
         "awilix-koa": "^9.0.0",
         "body-parser": "^1.20.2",
+        "class-validator": "^0.14.0",
         "cors": "^2.8.5",
         "dotenv": "^16.0.3",
         "koa": "^2.14.1"

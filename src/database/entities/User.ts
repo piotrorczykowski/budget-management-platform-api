@@ -38,7 +38,9 @@ export default class User extends CustomBaseEntity {
     @Length(5, 50)
     password!: string
 
-    @Enum()
+    @Enum({
+        items: () => UserRole,
+    })
     @IsEnum(UserRole)
     role!: UserRole
 }

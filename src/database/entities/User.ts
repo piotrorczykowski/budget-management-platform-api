@@ -33,10 +33,12 @@ export default class User extends CustomBaseEntity {
     email!: string
 
     @Property({
-        length: 50,
+        length: 60,
     })
-    @Length(5, 50)
     password!: string
+
+    @Property()
+    isActive!: boolean
 
     @Enum({
         items: () => UserRole,

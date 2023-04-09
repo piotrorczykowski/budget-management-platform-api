@@ -7,6 +7,7 @@ import { loadControllers, scopePerRequest } from 'awilix-koa'
 import { MikroORM } from '@mikro-orm/core'
 import { MySqlDriver } from '@mikro-orm/mysql'
 import _ from 'lodash'
+import bodyParser from 'koa-bodyparser'
 import initializeORM from './connection'
 import { initContainer } from './awilix'
 import { config } from './config'
@@ -17,6 +18,8 @@ initializeORM()
         const container: AwilixContainer = await initContainer(orm)
 
         app.use(scopePerRequest(container))
+
+        app.use(bodyParser())
 
         const controllersPath: string = 'modules/**/*Controller.ts'
         app.use(loadControllers(controllersPath, { cwd: __dirname }))

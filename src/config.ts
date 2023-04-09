@@ -5,6 +5,7 @@ interface IConfig {
     dbUser: string
     dbPassword: string
     dbPort: number
+    jwtSecret: string
 }
 
 export const config: IConfig = {
@@ -14,4 +15,5 @@ export const config: IConfig = {
     dbUser: process.env.DATABASE_USER || '',
     dbPassword: process.env.DATABASE_PASSWORD || '',
     dbPort: Number(process.env.DATABASE_PORT) || 0,
+    jwtSecret: process.env.JWT_SECRET || '',
 }

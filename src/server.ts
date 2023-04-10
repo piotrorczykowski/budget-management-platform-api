@@ -12,6 +12,8 @@ import initializeORM from './connection'
 import { initContainer } from './awilix'
 import { config } from './config'
 import errorHandler from './middlewares/errorHandler'
+import morganMiddleware from './middlewares/morgan'
+import logger from './winston'
 
 initializeORM()
     .then(async (orm: MikroORM<MySqlDriver>) => {
@@ -19,9 +21,9 @@ initializeORM()
         const container: AwilixContainer = await initContainer(orm)
 
         app.use(errorHandler)
+        app.use(morganMiddleware)
 
         app.use(scopePerRequest(container))
-
         app.use(bodyParser())
 
         const controllersPath: string = 'modules/**/*Controller.ts'
@@ -29,6 +31,6 @@ initializeORM()
 
         app.listen(config.port)
     })
-    .catch((e) => {
-        console.log(e)
+    .catch((error) => {
+        logger.error(error.message)
     })

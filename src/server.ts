@@ -11,8 +11,8 @@ import bodyParser from 'koa-bodyparser'
 import initializeORM from './connection'
 import { initContainer } from './awilix'
 import { config } from './config'
-import errorHandler from './middlewares/errorHandler'
-import morganMiddleware from './middlewares/morgan'
+import errorHandler from './middleware/errorHandler'
+import morganMiddleware from './middleware/morgan'
 import logger from './winston'
 
 initializeORM()

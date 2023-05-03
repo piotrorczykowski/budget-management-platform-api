@@ -17,6 +17,7 @@ import logger from './winston'
 
 initializeORM()
     .then(async (orm: MikroORM<MySqlDriver>) => {
+        logger.info('Starting')
         const app: Koa = new Koa()
         const container: AwilixContainer = await initContainer(orm)
 
@@ -30,6 +31,7 @@ initializeORM()
         app.use(loadControllers(controllersPath, { cwd: __dirname }))
 
         app.listen(config.port)
+        logger.info(`Server is listening on port: ${config.port}...`)
     })
     .catch((error) => {
         logger.error(error.message)

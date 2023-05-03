@@ -14,7 +14,7 @@ const ormConfig: Options<MySqlDriver> = {
     forceUtcTimezone: true,
     tsNode: true,
     allowGlobalContext: true,
-    debug: true,
+    debug: false,
     migrations: {
         tableName: 'mikro_orm_migrations',
         pathTs: process.cwd() + '/src/database/migrations',

@@ -8,12 +8,14 @@ import { MikroORM } from '@mikro-orm/core'
 import { MySqlDriver } from '@mikro-orm/mysql'
 import _ from 'lodash'
 import bodyParser from 'koa-bodyparser'
+import passport from './passport'
 import initializeORM from './connection'
 import { initContainer } from './awilix'
 import { config } from './config'
 import errorHandler from './middleware/errorHandler'
 import morganMiddleware from './middleware/morgan'
 import logger from './middleware/winston'
+import authMiddleware from './middleware/authMiddleware'
 
 let container: AwilixContainer = null
 
@@ -29,6 +31,9 @@ initializeORM()
         app.use(scopePerRequest(container))
         app.use(bodyParser())
 
+        passport()
+        app.use(authMiddleware)
+
         const controllersPath: string = 'modules/**/*Controller.ts'
         app.use(loadControllers(controllersPath, { cwd: __dirname }))
 
@@ -39,6 +44,6 @@ initializeORM()
         logger.error(error.message)
     })
 
-export const getContainer = async () => {
+export const getContainer = () => {
     return container
 }

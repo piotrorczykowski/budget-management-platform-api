@@ -1,4 +1,4 @@
-import logger from '../winston'
+import logger from './winston'
 
 const errorHandler = async (ctx, next) => {
     try {

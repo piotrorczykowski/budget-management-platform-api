@@ -11,7 +11,7 @@ const authMiddleware = async (ctx, next) => {
     } else {
         await passport.authenticate('jwt', { session: false }, async (err, user) => {
             if (user) {
-                ctx.state.user = user
+                ctx.state.user = user.stripUser()
                 await next()
             } else {
                 logger.error(err)

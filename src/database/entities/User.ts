@@ -45,4 +45,15 @@ export default class User extends CustomBaseEntity {
     })
     @IsEnum(UserRole)
     role!: UserRole
+
+    stripUser() {
+        delete this.createdAt
+        delete this.updatedAt
+        delete this.firstName
+        delete this.lastName
+        delete this.email
+        delete this.password
+        delete this.isActive
+        return this
+    }
 }

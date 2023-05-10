@@ -13,13 +13,15 @@ import { initContainer } from './awilix'
 import { config } from './config'
 import errorHandler from './middleware/errorHandler'
 import morganMiddleware from './middleware/morgan'
-import logger from './winston'
+import logger from './middleware/winston'
+
+let container: AwilixContainer = null
 
 initializeORM()
     .then(async (orm: MikroORM<MySqlDriver>) => {
         logger.info('Starting')
         const app: Koa = new Koa()
-        const container: AwilixContainer = await initContainer(orm)
+        container = await initContainer(orm)
 
         app.use(errorHandler)
         app.use(morganMiddleware)
@@ -36,3 +38,7 @@ initializeORM()
     .catch((error) => {
         logger.error(error.message)
     })
+
+export const getContainer = async () => {
+    return container
+}

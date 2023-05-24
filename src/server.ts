@@ -6,6 +6,7 @@ import { AwilixContainer } from 'awilix'
 import { loadControllers, scopePerRequest } from 'awilix-koa'
 import { MikroORM } from '@mikro-orm/core'
 import { MySqlDriver } from '@mikro-orm/mysql'
+import cors from '@koa/cors'
 import bodyParser from 'koa-bodyparser'
 import passport from './passport'
 import initializeORM from './connection'
@@ -23,6 +24,12 @@ initializeORM()
         logger.info('Starting')
         const app: Koa = new Koa()
         container = await initContainer(orm)
+
+        app.use(
+            cors({
+                origin: config.backendUrl,
+            })
+        )
 
         app.use(errorHandler)
         app.use(morganMiddleware)

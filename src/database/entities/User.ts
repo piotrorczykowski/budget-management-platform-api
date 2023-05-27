@@ -13,16 +13,10 @@ export default class User extends CustomBaseEntity {
     username!: string
 
     @Property({
-        length: 50,
+        length: 255,
     })
-    @Length(3, 50)
-    firstName!: string
-
-    @Property({
-        length: 80,
-    })
-    @Length(3, 80)
-    lastName!: string
+    @Length(3, 255)
+    fullName!: string
 
     @Property({
         length: 50,
@@ -49,8 +43,7 @@ export default class User extends CustomBaseEntity {
     stripUser() {
         delete this.createdAt
         delete this.updatedAt
-        delete this.firstName
-        delete this.lastName
+        delete this.fullName
         delete this.email
         delete this.password
         delete this.isActive

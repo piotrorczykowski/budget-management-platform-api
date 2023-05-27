@@ -12,14 +12,12 @@ export default class UserService {
 
     public async createUser({
         username,
-        firstName,
-        lastName,
+        fullName,
         email,
         password,
     }: {
         username: string
-        firstName: string
-        lastName: string
+        fullName: string
         email: string
         password: string
     }): Promise<User> {
@@ -30,8 +28,7 @@ export default class UserService {
 
         const user: User = new User()
         user.username = username
-        user.firstName = firstName
-        user.lastName = lastName
+        user.fullName = fullName
         user.email = email
         user.isActive = false
         user.role = UserRole.USER

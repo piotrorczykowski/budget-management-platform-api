@@ -21,6 +21,11 @@ export default class UserService {
         email: string
         password: string
     }): Promise<void> {
+        const isUsernameAvailable: boolean = await this.checkUsernameAvailability(username)
+        if (!isUsernameAvailable) {
+            throw new Error('Username is already used')
+        }
+
         const isEmailAvailable: boolean = await this.checkEmailAvailability(email)
         if (!isEmailAvailable) {
             throw new Error('Email is already used')
@@ -37,6 +42,11 @@ export default class UserService {
         user.password = hashedPassword
 
         await this.userRepository.persistAndFlush(user)
+    }
+
+    private async checkUsernameAvailability(username: string): Promise<boolean> {
+        const userWithGivenUsername: User = await this.userRepository.findOne({ username: username })
+        return !userWithGivenUsername
     }
 
     private async checkEmailAvailability(email: string): Promise<boolean> {

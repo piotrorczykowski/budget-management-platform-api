@@ -9,6 +9,7 @@ interface IConfig {
     backendUrl: string
     emailUsername: string
     emailPassword: string
+    emailFrom: string
 }
 
 export const config: IConfig = {
@@ -22,4 +23,5 @@ export const config: IConfig = {
     backendUrl: process.env.BACKEND_URL || '',
     emailUsername: process.env.EMAIL_USERNAME || '',
     emailPassword: process.env.EMAIL_PASSWORD || '',
+    emailFrom: process.env.EMAIL_FROM || '',
 }

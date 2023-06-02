@@ -27,7 +27,7 @@ initializeORM()
 
         app.use(
             cors({
-                origin: config.backendUrl,
+                origin: config.frontendUrl,
             })
         )
 

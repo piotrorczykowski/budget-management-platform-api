@@ -19,12 +19,16 @@ export default class MailingService {
         })
     }
 
-    public async sendMail(to: string, subject: string): Promise<void> {
+    public async sendUserActivationMail(to: string, token: string): Promise<void> {
         const mailData: any = {
             from: config.emailFrom,
             to: to,
-            subject: subject,
-            html: '<strong>Hello world?</strong>',
+            subject: 'Account Activation',
+            html: `<h1 style="color: black;">Almost done..</h1>
+            <p>Thank you for registering with us. In order to activate your account please click the link below.</p>
+            <a style="appearance: button;" href=${config.frontendUrl}/activateAccount/${token}>Activate Account</a>
+            <p>Best,<br>The BMP Team
+            </div>`,
         }
 
         await this.transporter.sendMail(mailData)

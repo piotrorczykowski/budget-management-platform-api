@@ -27,4 +27,12 @@ export default class AuthController {
         ctx.body = { accessToken: token }
         ctx.status = 200
     }
+
+    @route('/activate-user')
+    @POST()
+    public async activateUser(ctx: Context): Promise<void> {
+        const { token }: { token: string } = <{ token: string }>ctx.request.body
+        await this.authService.activateUser(token)
+        ctx.status = 200
+    }
 }

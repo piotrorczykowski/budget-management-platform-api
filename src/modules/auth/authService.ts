@@ -1,10 +1,11 @@
 import { EntityRepository } from '@mikro-orm/mysql'
 import bcrypt from 'bcrypt'
-import jwt from 'jsonwebtoken'
-import UserService from '../user/userService'
+import jwt, { JwtPayload } from 'jsonwebtoken'
+import UserService from '../user/usersService'
 import User from '../../database/entities/User'
 import { config } from '../../config'
 import { UserData } from './types'
+import logger from '../../middleware/winston'
 
 export default class AuthService {
     userService: UserService
@@ -17,7 +18,6 @@ export default class AuthService {
 
     public async signUp(userData: UserData): Promise<void> {
         await this.userService.createUser(userData)
-        //TODO add sending mail with email verification link
     }
 
     public async signIn(username: string, password: string): Promise<string> {
@@ -36,5 +36,17 @@ export default class AuthService {
         const tokenPayload: any = { id: userId }
         const token = jwt.sign(tokenPayload, config.jwtSecret)
         return token
+    }
+
+    public async activateUser(token: string): Promise<void> {
+        logger.info('Activating user...')
+        const email: string = await this.getEmailFromToken(token)
+        await this.userService.activateUser(email)
+    }
+
+    private getEmailFromToken(token: string): string {
+        const tokenPayload: JwtPayload = <JwtPayload>jwt.verify(token, config.jwtSecret)
+        const email: string = tokenPayload.email
+        return email
     }
 }

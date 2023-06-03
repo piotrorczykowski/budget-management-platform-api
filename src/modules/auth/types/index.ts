@@ -9,3 +9,8 @@ export type UserSignInData = {
     username: string
     password: string
 }
+
+export type ResetPasswordData = {
+    token: string
+    password: string
+}

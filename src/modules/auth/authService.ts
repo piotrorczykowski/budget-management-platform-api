@@ -44,12 +44,11 @@ export default class AuthService {
         const expirationTime: number = 60 * 60 // 1 hour
         const tokenPayload: { email: string } = { email: email }
         const token: string = jwt.sign(tokenPayload, config.jwtSecret, { expiresIn: expirationTime })
-        console.log(token)
         return token
     }
 
     public async signIn(username: string, password: string): Promise<string> {
-        const user: User = await this.userRepository.findOneOrFail({ username: username })
+        const user: User = await this.userRepository.findOneOrFail({ username: username, isActive: true })
 
         const isPasswordMatched: boolean = await bcrypt.compare(password, user.password)
         if (!isPasswordMatched) {

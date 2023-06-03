@@ -2,7 +2,7 @@ import { EntityRepository } from '@mikro-orm/core'
 import bcrypt from 'bcrypt'
 import User from '../../database/entities/User'
 import { UserRole } from '../../database/enums'
-import logger from '../../middleware/winston'
+import logger from '../../winston'
 
 export default class UserService {
     userRepository: EntityRepository<User>

@@ -14,7 +14,7 @@ import { initContainer } from './awilix'
 import { config } from './config'
 import errorHandler from './middleware/errorHandler'
 import morganMiddleware from './middleware/morgan'
-import logger from './middleware/winston'
+import logger from './winston'
 import authMiddleware from './middleware/authMiddleware'
 
 let container: AwilixContainer = null

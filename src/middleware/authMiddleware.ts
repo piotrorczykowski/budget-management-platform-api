@@ -1,5 +1,5 @@
 import passport from 'koa-passport'
-import logger from './winston'
+import logger from '../winston'
 import { PUBLIC_ENDPOINTS } from './types/constants'
 
 const authMiddleware = async (ctx, next) => {

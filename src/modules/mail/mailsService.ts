@@ -1,7 +1,7 @@
 import nodemailer, { SentMessageInfo } from 'nodemailer'
 import Mail from 'nodemailer/lib/mailer'
 import { config } from '../../config'
-import logger from '../../middleware/winston'
+import logger from '../../winston'
 
 export default class MailsService {
     transporter: Mail<SentMessageInfo>

@@ -1,7 +1,7 @@
 import { POST, route } from 'awilix-koa'
 import { Context } from 'koa'
 import MailingService from './mailingService'
-import { UserActivationMailData } from './types'
+import { MailData } from './types'
 
 @route('/mailing')
 export default class MailingController {
@@ -11,11 +11,21 @@ export default class MailingController {
         this.mailingService = mailingService
     }
 
+    // TODO add role check middleware
     @route('/userActivation/test')
     @POST()
-    public async testMail(ctx: Context): Promise<any> {
-        const { to, token }: UserActivationMailData = <UserActivationMailData>ctx.request.body
-        await this.mailingService.sendUserActivationMail(to, token)
+    public async userActivationTest(ctx: Context): Promise<any> {
+        const { to, token, userId }: MailData = <MailData>ctx.request.body
+        await this.mailingService.sendUserActivationMail(to, token, userId)
+        ctx.status = 200
+    }
+
+    // TODO add role check middleware
+    @route('/resetPassword/test')
+    @POST()
+    public async resetPasswordTest(ctx: Context): Promise<any> {
+        const { to, token, userId }: MailData = <MailData>ctx.request.body
+        await this.mailingService.sendResetPasswordMail(to, token, userId)
         ctx.status = 200
     }
 }

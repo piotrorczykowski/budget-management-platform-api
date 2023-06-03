@@ -23,13 +23,13 @@ export default class UserService {
         password: string
     }): Promise<void> {
         logger.info('Creating new user...')
-        const isUsernameAvailable: boolean = await this.checkUsernameAvailability(username)
-        if (!isUsernameAvailable) {
+        const isUsernameUnavailable: boolean = await this.isUserWithUsernameExists(username)
+        if (isUsernameUnavailable) {
             throw new Error('Username is already used')
         }
 
-        const isEmailAvailable: boolean = await this.checkEmailAvailability(email)
-        if (!isEmailAvailable) {
+        const isEmailUnavailable: boolean = await this.isUserWithEmailExists(email)
+        if (isEmailUnavailable) {
             throw new Error('Email is already used')
         }
 
@@ -46,14 +46,14 @@ export default class UserService {
         await this.userRepository.persistAndFlush(user)
     }
 
-    private async checkUsernameAvailability(username: string): Promise<boolean> {
+    private async isUserWithUsernameExists(username: string): Promise<boolean> {
         const userWithGivenUsername: User = await this.userRepository.findOne({ username: username })
-        return !userWithGivenUsername
+        return !!userWithGivenUsername
     }
 
-    private async checkEmailAvailability(email: string): Promise<boolean> {
+    public async isUserWithEmailExists(email: string): Promise<boolean> {
         const userWithGivenEmail: User = await this.userRepository.findOne({ email: email })
-        return !userWithGivenEmail
+        return !!userWithGivenEmail
     }
 
     private async getHashPassword(password: string): Promise<string> {
@@ -65,6 +65,15 @@ export default class UserService {
     public async activateUser(email: string): Promise<void> {
         const user: User = await this.userRepository.findOneOrFail({ email: email })
         user.isActive = true
+        await this.userRepository.persistAndFlush(user)
+    }
+
+    public async updatePassword(email: string, password: string): Promise<void> {
+        const user: User = await this.userRepository.findOneOrFail({ email: email })
+        const hashedPassword: string = await this.getHashPassword(password)
+
+        user.password = hashedPassword
+
         await this.userRepository.persistAndFlush(user)
     }
 }

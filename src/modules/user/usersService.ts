@@ -1,24 +1,13 @@
 import { EntityRepository } from '@mikro-orm/core'
 import bcrypt from 'bcrypt'
 import User from '../../database/entities/User'
-import jwt from 'jsonwebtoken'
 import { UserRole } from '../../database/enums'
-import MailsService from '../mail/mailsService'
-import { config } from '../../config'
 import logger from '../../middleware/winston'
 
 export default class UserService {
-    mailsService: MailsService
     userRepository: EntityRepository<User>
 
-    constructor({
-        mailsService,
-        userRepository,
-    }: {
-        mailsService: MailsService
-        userRepository: EntityRepository<User>
-    }) {
-        this.mailsService = mailsService
+    constructor({ userRepository }: { userRepository: EntityRepository<User> }) {
         this.userRepository = userRepository
     }
 
@@ -55,8 +44,6 @@ export default class UserService {
         user.password = hashedPassword
 
         await this.userRepository.persistAndFlush(user)
-
-        await this.sendUserActivationMail(email)
     }
 
     private async checkUsernameAvailability(username: string): Promise<boolean> {
@@ -73,19 +60,6 @@ export default class UserService {
         const salt = await bcrypt.genSalt()
         const hashedPassword: string = await bcrypt.hash(password, salt)
         return hashedPassword
-    }
-
-    private async sendUserActivationMail(email: string): Promise<void> {
-        logger.info(`Sending user activation mail to: ${email}...`)
-        const token: string = this.generateTokenForUser(email)
-        await this.mailsService.sendUserActivationMail(email, token)
-    }
-
-    private generateTokenForUser(email: string): string {
-        const expirationTime: number = 60 * 60 // 1 hour
-        const tokenPayload: { email: string } = { email: email }
-        const token: string = jwt.sign(tokenPayload, config.jwtSecret, { expiresIn: expirationTime })
-        return token
     }
 
     public async activateUser(email: string): Promise<void> {

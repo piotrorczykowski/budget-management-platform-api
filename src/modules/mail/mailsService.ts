@@ -2,7 +2,7 @@ import nodemailer, { SentMessageInfo } from 'nodemailer'
 import Mail from 'nodemailer/lib/mailer'
 import { config } from '../../config'
 
-export default class MailingService {
+export default class MailsService {
     transporter: Mail<SentMessageInfo>
 
     constructor() {

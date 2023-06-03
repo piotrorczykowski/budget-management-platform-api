@@ -35,16 +35,8 @@ export default class AuthService {
     }
 
     private async sendUserActivationMail(email: string): Promise<void> {
-        logger.info(`Sending user activation mail to: ${email}`)
         const token: string = this.generateTokenForUser(email)
         await this.mailsService.sendUserActivationMail(email, token)
-    }
-
-    private generateTokenForUser(email: string): string {
-        const expirationTime: number = 60 * 60 // 1 hour
-        const tokenPayload: { email: string } = { email: email }
-        const token: string = jwt.sign(tokenPayload, config.jwtSecret, { expiresIn: expirationTime })
-        return token
     }
 
     public async signIn(username: string, password: string): Promise<string> {
@@ -67,9 +59,32 @@ export default class AuthService {
 
     public async activateUser(token: string): Promise<void> {
         logger.info('Activating user...')
-        console.log(token)
         const email: string = await this.getEmailFromToken(token)
         await this.usersService.activateUser(email)
+    }
+
+    public async forgotPassword(email: string): Promise<void> {
+        logger.info('Resetting password via email')
+        const isEmailCorrect: boolean = await this.usersService.isUserWithEmailExists(email)
+        if (!isEmailCorrect) {
+            throw new Error(`There is no user with given email: ${email}`)
+        }
+
+        const token: string = this.generateTokenForUser(email)
+        await this.mailsService.sendResetPasswordMail(email, token)
+    }
+
+    private generateTokenForUser(email: string): string {
+        const expirationTime: number = 60 * 60 // 1 hour
+        const tokenPayload: { email: string } = { email: email }
+        const token: string = jwt.sign(tokenPayload, config.jwtSecret, { expiresIn: expirationTime })
+        return token
+    }
+
+    public async resetPassword(token: string, password: string): Promise<void> {
+        logger.info('Updating forgotten password')
+        const email: string = await this.getEmailFromToken(token)
+        await this.usersService.updatePassword(email, password)
     }
 
     private getEmailFromToken(token: string): string {

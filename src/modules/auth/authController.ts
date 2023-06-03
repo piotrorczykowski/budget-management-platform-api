@@ -1,7 +1,7 @@
 import { Context } from 'koa'
 import { route, POST } from 'awilix-koa'
 import AuthService from './authService'
-import { UserData, UserSignInData } from './types'
+import { ResetPasswordData, UserData, UserSignInData } from './types'
 
 @route('/auth')
 export default class AuthController {
@@ -33,6 +33,22 @@ export default class AuthController {
     public async activateUser(ctx: Context): Promise<void> {
         const { token }: { token: string } = <{ token: string }>ctx.request.body
         await this.authService.activateUser(token)
+        ctx.status = 200
+    }
+
+    @route('/forgot-password')
+    @POST()
+    public async forgotPassword(ctx: Context): Promise<void> {
+        const { email }: { email: string } = <{ email: string }>ctx.request.body
+        await this.authService.forgotPassword(email)
+        ctx.status = 200
+    }
+
+    @route('/reset-password')
+    @POST()
+    public async resetPassword(ctx: Context): Promise<void> {
+        const { token, password }: ResetPasswordData = <ResetPasswordData>ctx.request.body
+        await this.authService.resetPassword(token, password)
         ctx.status = 200
     }
 }

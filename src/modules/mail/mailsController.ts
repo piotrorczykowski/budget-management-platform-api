@@ -1,8 +1,11 @@
-import { POST, route } from 'awilix-koa'
+import { POST, before, route } from 'awilix-koa'
 import { Context } from 'koa'
 import MailsService from './mailsService'
 import { MailData } from './types'
+import roleCheckMiddleware from '../../middleware/roleCheckMiddleware'
+import { UserRole } from '../../database/enums'
 
+@before(roleCheckMiddleware([UserRole.ADMIN]))
 @route('/mails')
 export default class MailsController {
     mailsService: MailsService
@@ -11,7 +14,6 @@ export default class MailsController {
         this.mailsService = mailsService
     }
 
-    // TODO add role check middleware
     @route('/user-activation/test')
     @POST()
     public async userActivationTest(ctx: Context): Promise<any> {
@@ -20,7 +22,6 @@ export default class MailsController {
         ctx.status = 200
     }
 
-    // TODO add role check middleware
     @route('/reset-password/test')
     @POST()
     public async resetPasswordTest(ctx: Context): Promise<any> {

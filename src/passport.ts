@@ -15,7 +15,7 @@ function checkJWT(payload, done) {
 
     const userId: number = payload.id
     userRepository
-        .findOneOrFail({ id: userId }, { fields: ['username', 'role'] })
+        .findOneOrFail({ id: userId, isActive: true }, { fields: ['username', 'role'] })
         .then((user) => {
             return done(null, user)
         })

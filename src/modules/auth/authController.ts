@@ -19,6 +19,14 @@ export default class AuthController {
         ctx.status = 201
     }
 
+    @route('/resend-activation-mail')
+    @POST()
+    public async resendActivationMail(ctx: Context): Promise<void> {
+        const { email }: { email: string } = <{ email: string }>ctx.request.body
+        await this.authService.sendUserActivationMail(email)
+        ctx.status = 200
+    }
+
     @route('/signIn')
     @POST()
     public async signIn(ctx: Context): Promise<any> {

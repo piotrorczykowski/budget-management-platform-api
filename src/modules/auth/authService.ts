@@ -34,8 +34,9 @@ export default class AuthService {
         await this.sendUserActivationMail(userData.email)
     }
 
-    private async sendUserActivationMail(email: string): Promise<void> {
-        const token: string = this.generateTokenForUser(email)
+    public async sendUserActivationMail(email: string): Promise<void> {
+        const customExpirationTime: number = 60 * 60 * 24 // one day
+        const token: string = this.generateTokenForUser(email, customExpirationTime)
         await this.mailsService.sendUserActivationMail(email, token)
     }
 
@@ -74,8 +75,8 @@ export default class AuthService {
         await this.mailsService.sendResetPasswordMail(email, token)
     }
 
-    private generateTokenForUser(email: string): string {
-        const expirationTime: number = 60 * 60 // 1 hour
+    private generateTokenForUser(email: string, customExpirationTime?: number): string {
+        const expirationTime: number = customExpirationTime || 60 * 60 // 1 hour
         const tokenPayload: { email: string } = { email: email }
         const token: string = jwt.sign(tokenPayload, config.jwtSecret, { expiresIn: expirationTime })
         return token

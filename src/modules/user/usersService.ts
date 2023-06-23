@@ -3,6 +3,7 @@ import bcrypt from 'bcrypt'
 import User from '../../database/entities/User'
 import { UserRole } from '../../database/enums'
 import logger from '../../winston'
+import { UserData } from './types'
 
 export default class UsersService {
     userRepository: EntityRepository<User>
@@ -79,6 +80,25 @@ export default class UsersService {
 
     public async getRequestedUser(userId: number): Promise<User> {
         const user: User = await this.userRepository.findOneOrFail({ id: userId })
+        return user.stripUser()
+    }
+
+    public async updateUser(userId: number, userData: UserData): Promise<User> {
+        const { username, fullName, email, currency, password }: UserData = userData
+
+        const user: User = await this.userRepository.findOneOrFail({ id: userId })
+
+        user.username = username
+        user.fullName = fullName
+        user.email = email
+        user.currency = currency
+
+        if (password?.length) {
+            const hashedPassword: string = await this.getHashPassword(password)
+            user.password = hashedPassword
+        }
+
+        await this.userRepository.flush()
         return user.stripUser()
     }
 }

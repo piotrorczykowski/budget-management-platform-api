@@ -1,7 +1,7 @@
 import { Entity, Enum, Property, Unique } from '@mikro-orm/core'
 import CustomBaseEntity from './CustomBaseEntity'
 import { IsEmail, IsEnum, Length } from 'class-validator'
-import { UserRole } from '../enums'
+import { Currency, UserRole } from '../enums'
 
 @Entity()
 export default class User extends CustomBaseEntity {
@@ -39,6 +39,12 @@ export default class User extends CustomBaseEntity {
     })
     @IsEnum(UserRole)
     role!: UserRole
+
+    @Enum({
+        items: () => Currency,
+    })
+    @IsEnum(Currency)
+    currency!: Currency
 
     stripUser() {
         delete this.createdAt

@@ -43,8 +43,6 @@ export default class User extends CustomBaseEntity {
     stripUser() {
         delete this.createdAt
         delete this.updatedAt
-        delete this.fullName
-        delete this.email
         delete this.password
         delete this.isActive
         return this

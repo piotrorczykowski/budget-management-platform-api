@@ -18,6 +18,7 @@ export default class UsersController {
         ctx.status = 200
     }
 
+    // TODO add middleware for user access validation
     @route('/:id')
     @PUT()
     public async updateUser(ctx: Context) {

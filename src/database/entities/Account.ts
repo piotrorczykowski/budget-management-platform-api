@@ -12,7 +12,7 @@ export default class Account extends CustomBaseEntity {
     @Length(5, 30)
     name!: string
 
-    @Property()
+    @Property({ type: 'decimal', precision: 10, scale: 2, default: 0 })
     balance!: number
 
     @ManyToOne({ onDelete: 'cascade' })

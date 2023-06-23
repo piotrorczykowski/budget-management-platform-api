@@ -1,6 +1,7 @@
-import { GET, route } from 'awilix-koa'
+import { GET, PUT, route } from 'awilix-koa'
 import { Context } from 'koa'
 import UsersService from './usersService'
+import { UserData } from './types'
 
 @route('/users')
 export default class UsersController {
@@ -14,6 +15,13 @@ export default class UsersController {
     @GET()
     public async getRequestedUser(ctx: Context) {
         ctx.body = await this.usersService.getRequestedUser(ctx.state.user.id)
+        ctx.status = 200
+    }
+
+    @route('/:id')
+    @PUT()
+    public async updateUser(ctx: Context) {
+        ctx.body = await this.usersService.updateUser(ctx.params.id, <UserData>ctx.request.body)
         ctx.status = 200
     }
 }

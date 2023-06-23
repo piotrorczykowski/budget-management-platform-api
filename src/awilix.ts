@@ -8,6 +8,7 @@ import StringUtils from './utils/stringUtils'
 export const initContainer = async (orm: MikroORM<MySqlDriver>): Promise<AwilixContainer> => {
     const container: AwilixContainer = createContainer()
     registerServices(container)
+    container.register('orm', asValue(orm))
     await registerRepositories(container, orm)
 
     return container
@@ -21,7 +22,8 @@ const registerServices = (container: AwilixContainer): void => {
     })
 }
 
-const registerRepositories = async (container: AwilixContainer, orm: MikroORM<MySqlDriver>): Promise<void> => {
+export const registerRepositories = async (container: AwilixContainer, orm: MikroORM<MySqlDriver>): Promise<void> => {
+    orm.em.clear()
     const tablesNames: string[] = await getTablesNames(orm)
     for (const tableName of tablesNames) {
         const entityName: string = StringUtils.toPascalCase(tableName)

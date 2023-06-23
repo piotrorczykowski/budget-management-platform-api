@@ -13,6 +13,7 @@ import initializeORM from './connection'
 import { initContainer } from './awilix'
 import { config } from './config'
 import errorHandler from './middleware/errorHandler'
+import identityMapHandler from './middleware/identityMapHandler'
 import morganMiddleware from './middleware/morgan'
 import logger from './winston'
 import authMiddleware from './middleware/authMiddleware'
@@ -31,10 +32,13 @@ initializeORM()
             })
         )
 
+        app.use(scopePerRequest(container))
+
+        app.use(identityMapHandler)
+
         app.use(errorHandler)
         app.use(morganMiddleware)
 
-        app.use(scopePerRequest(container))
         app.use(bodyParser())
 
         passport()

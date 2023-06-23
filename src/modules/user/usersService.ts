@@ -4,7 +4,7 @@ import User from '../../database/entities/User'
 import { UserRole } from '../../database/enums'
 import logger from '../../winston'
 
-export default class UserService {
+export default class UsersService {
     userRepository: EntityRepository<User>
 
     constructor({ userRepository }: { userRepository: EntityRepository<User> }) {
@@ -75,5 +75,10 @@ export default class UserService {
         user.password = hashedPassword
 
         await this.userRepository.persistAndFlush(user)
+    }
+
+    public async getRequestedUser(userId: number): Promise<User> {
+        const user: User = await this.userRepository.findOneOrFail({ id: userId })
+        return user.stripUser()
     }
 }

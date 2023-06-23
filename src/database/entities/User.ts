@@ -1,7 +1,8 @@
-import { Entity, Enum, Property, Unique } from '@mikro-orm/core'
+import { Cascade, Collection, Entity, Enum, OneToMany, Property, Unique } from '@mikro-orm/core'
 import CustomBaseEntity from './CustomBaseEntity'
 import { IsEmail, IsEnum, Length } from 'class-validator'
 import { Currency, UserRole } from '../enums'
+import Account from './Account'
 
 @Entity()
 export default class User extends CustomBaseEntity {
@@ -44,7 +45,10 @@ export default class User extends CustomBaseEntity {
         items: () => Currency,
     })
     @IsEnum(Currency)
-    currency!: Currency
+    currency: Currency = Currency.PLN
+
+    @OneToMany(() => Account, (account) => account.user, { cascade: [Cascade.REMOVE] })
+    accounts = new Collection<Account>(this)
 
     stripUser() {
         delete this.createdAt

@@ -38,4 +38,9 @@ export default class AccountsService {
             throw new Error(`Cannot create account for user with id: ${userId}. Maximum accounts number reached`)
         }
     }
+
+    public async getUserAccounts(userId: number): Promise<Account[]> {
+        const accounts: Account[] = await this.accountRepository.find({ user: { id: userId } })
+        return accounts
+    }
 }

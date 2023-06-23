@@ -1,4 +1,4 @@
-import { POST, route } from 'awilix-koa'
+import { GET, POST, route } from 'awilix-koa'
 import { Context } from 'koa'
 import AccountsService from './accountsService'
 import { AccountData } from './types'
@@ -16,5 +16,13 @@ export default class AccountsController {
     public async createAccount(ctx: Context) {
         ctx.body = await this.accountsService.createAccount(<AccountData>ctx.request.body, ctx.state.user.id)
         ctx.status = 201
+    }
+
+    // TODO add middleware for user access validation
+    @route('/:userId')
+    @GET()
+    public async getUserAccounts(ctx: Context) {
+        ctx.body = await this.accountsService.getUserAccounts(ctx.params.userId)
+        ctx.status = 200
     }
 }

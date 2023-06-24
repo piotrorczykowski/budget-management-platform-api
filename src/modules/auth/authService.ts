@@ -40,7 +40,7 @@ export default class AuthService {
         await this.mailsService.sendUserActivationMail(email, token)
     }
 
-    public async signIn(username: string, password: string): Promise<string> {
+    public async signIn(username: string, password: string): Promise<{ accessToken: string; userId: number }> {
         const user: User = await this.userRepository.findOneOrFail({ username: username, isActive: true })
 
         const isPasswordMatched: boolean = await bcrypt.compare(password, user.password)
@@ -49,7 +49,7 @@ export default class AuthService {
         }
 
         const token: string = this.generateToken(user.id)
-        return token
+        return { accessToken: token, userId: user.id }
     }
 
     private generateToken(userId: number): string {

@@ -31,8 +31,8 @@ export default class AuthController {
     @POST()
     public async signIn(ctx: Context): Promise<any> {
         const { username, password }: UserSignInData = <UserSignInData>ctx.request.body
-        const token: string = await this.authService.signIn(username, password)
-        ctx.body = { accessToken: token }
+        ctx.body = await this.authService.signIn(username, password)
+        // ctx.body = { accessToken: token }
         ctx.status = 200
     }
 

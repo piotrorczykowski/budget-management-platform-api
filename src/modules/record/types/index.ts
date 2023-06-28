@@ -1,12 +1,14 @@
-import { Category } from '../../../database/enums'
+import { Category, RecordType } from '../../../database/enums'
 import Record from '../../../database/entities/Record'
 
 export type RecordData = {
+    recordType: RecordType
+    accountId: number
+    toAccountId: number
     amount: number
     date: Date
     category: Category
     isExpense: boolean
-    accountId: number
     description?: string
 }
 

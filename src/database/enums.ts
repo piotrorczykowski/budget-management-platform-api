@@ -22,3 +22,9 @@ export enum Category {
     Income = 'Income',
     Other = 'Other',
 }
+
+export enum RecordType {
+    Expense = 'Expense',
+    Income = 'Income',
+    Transfer = 'Transfer',
+}

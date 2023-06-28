@@ -4,6 +4,7 @@ import { PaginatedData, RecordData } from './types'
 import Account from '../../database/entities/Account'
 import moment from 'moment'
 import { QueryOrder } from '@mikro-orm/core'
+import { Category, RecordType } from '../../database/enums'
 
 export default class RecordsService {
     recordRepository: EntityRepository<Record>
@@ -20,6 +21,19 @@ export default class RecordsService {
         this.accountRepository = accountRepository
     }
 
+    public async handleRecordCreation(recordData: RecordData): Promise<Record | Record[]> {
+        const recordType: RecordType = recordData.recordType
+
+        switch (recordType) {
+            case RecordType.Expense:
+                return await this.createRecord({ ...recordData, isExpense: true })
+            case RecordType.Income:
+                return await this.createRecord({ ...recordData, isExpense: false })
+            case RecordType.Transfer:
+                return await this.createTransferRecord(recordData)
+        }
+    }
+
     public async createRecord(recordData: RecordData): Promise<Record> {
         const account: Account = await this.accountRepository.findOneOrFail({ id: recordData.accountId })
 
@@ -27,11 +41,28 @@ export default class RecordsService {
         record.amount = recordData.amount
         record.date = moment(recordData.date).utc().toDate()
         record.isExpense = recordData.isExpense
+        record.category = recordData.category
         record.description = recordData.description
         record.account = account
 
         await this.recordRepository.persistAndFlush(record)
         return record
+    }
+
+    public async createTransferRecord(recordData: RecordData): Promise<Record[]> {
+        const transferRecordFrom: Record = await this.createRecord({
+            ...recordData,
+            isExpense: true,
+            category: Category.FinancialExpenses,
+        })
+        const transferRecordTo: Record = await this.createRecord({
+            ...recordData,
+            isExpense: false,
+            accountId: recordData.toAccountId,
+            category: Category.FinancialExpenses,
+        })
+
+        return [transferRecordFrom, transferRecordTo]
     }
 
     public async getPaginatedRecordsForUser(userId: number, page: number, pageSize: number): Promise<PaginatedData> {

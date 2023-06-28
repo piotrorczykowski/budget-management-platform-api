@@ -14,7 +14,7 @@ export default class RecordsController {
     @route('/')
     @POST()
     public async createRecord(ctx: Context) {
-        ctx.body = await this.recordsService.createRecord(<RecordData>ctx.request.body)
+        ctx.body = await this.recordsService.handleRecordCreation(<RecordData>ctx.request.body)
         ctx.status = 201
     }
 

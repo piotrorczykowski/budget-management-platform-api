@@ -45,10 +45,20 @@ export default class RecordsService {
         record.category = recordData.category
         record.description = recordData.description
         record.isTransfer = recordData.isTransfer
-        record.account = account
+        record.account = await this.updateAccountBalance(account, record)
 
         await this.recordRepository.persistAndFlush(record)
         return record
+    }
+
+    private async updateAccountBalance(account: Account, record: Record): Promise<Account> {
+        if (record.isExpense) {
+            account.balance = account.balance - record.amount
+        } else {
+            account.balance = account.balance + record.amount
+        }
+
+        return account
     }
 
     public async createTransferRecord(recordData: RecordData): Promise<Record[]> {

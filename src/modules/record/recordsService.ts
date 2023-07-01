@@ -23,6 +23,7 @@ export default class RecordsService {
 
     public async handleRecordCreation(recordData: RecordData): Promise<Record | Record[]> {
         const recordType: RecordType = recordData.recordType
+        recordType === RecordType.Transfer ? (recordData.isTransfer = true) : (recordData.isTransfer = false)
 
         switch (recordType) {
             case RecordType.Expense:
@@ -43,6 +44,7 @@ export default class RecordsService {
         record.isExpense = recordData.isExpense
         record.category = recordData.category
         record.description = recordData.description
+        record.isTransfer = recordData.isTransfer
         record.account = account
 
         await this.recordRepository.persistAndFlush(record)
@@ -54,12 +56,14 @@ export default class RecordsService {
             ...recordData,
             isExpense: true,
             category: Category.FinancialExpenses,
+            isTransfer: true,
         })
         const transferRecordTo: Record = await this.createRecord({
             ...recordData,
             isExpense: false,
             accountId: recordData.toAccountId,
             category: Category.FinancialExpenses,
+            isTransfer: true,
         })
 
         return [transferRecordFrom, transferRecordTo]

@@ -44,7 +44,7 @@ export default class RecordsService {
         record.isExpense = recordData.isExpense
         record.category = recordData.category
         record.description = recordData.description
-        record.isTransfer = recordData.isTransfer
+        record.isTransfer = <boolean>recordData.isTransfer
         record.account = this.updateAccountBalance(account, record)
 
         await this.recordRepository.persistAndFlush(record)
@@ -80,14 +80,21 @@ export default class RecordsService {
     public async getPaginatedRecordsForUser(userId: number, page: number, pageSize: number): Promise<PaginatedData> {
         const skipCount: number = (page - 1) * pageSize
 
-        const records: Record[] = await this.recordRepository.find(
-            { account: { user: { id: userId } } },
-            {
-                orderBy: { date: QueryOrder.DESC },
-                offset: skipCount,
-                limit: pageSize,
-            }
-        )
+        const records: Record[] = (
+            await this.recordRepository.find(
+                { account: { user: { id: userId } } },
+                {
+                    orderBy: { date: QueryOrder.DESC },
+                    offset: skipCount,
+                    limit: pageSize,
+                    populate: ['account'],
+                }
+            )
+        )?.map((record) => {
+            const accountName: string = record.account?.name
+            delete record['account']
+            return { ...record, accountName: accountName }
+        })
 
         const recordsCount: number = await this.recordRepository.count({ account: { user: { id: userId } } })
         const pageCount: number = Math.ceil(recordsCount / pageSize)

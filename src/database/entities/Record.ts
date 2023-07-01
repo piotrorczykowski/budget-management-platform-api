@@ -17,6 +17,9 @@ export default class Record extends CustomBaseEntity {
     @Property()
     isExpense: boolean = true
 
+    @Property()
+    isTransfer: boolean = false
+
     @Enum({
         items: () => Category,
     })

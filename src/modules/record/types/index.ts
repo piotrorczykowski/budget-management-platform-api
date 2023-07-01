@@ -9,6 +9,7 @@ export type RecordData = {
     date: Date
     category: Category
     isExpense: boolean
+    isTransfer?: boolean
     description?: string
 }
 

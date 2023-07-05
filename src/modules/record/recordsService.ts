@@ -4,7 +4,8 @@ import { PaginatedData, RecordData } from './types'
 import Account from '../../database/entities/Account'
 import moment from 'moment'
 import { QueryOrder } from '@mikro-orm/core'
-import { Category, RecordType } from '../../database/enums'
+import { Category, RecordType, SortingOptions } from '../../database/enums'
+import { CategoryNameToSkipInFilter } from './types/constants'
 
 export default class RecordsService {
     recordRepository: EntityRepository<Record>
@@ -77,31 +78,99 @@ export default class RecordsService {
         return [transferRecordFrom, transferRecordTo]
     }
 
-    public async getPaginatedRecordsForUser(userId: number, page: number, pageSize: number): Promise<PaginatedData> {
+    public async getPaginatedRecordsForUser(
+        userId: number,
+        page: number,
+        pageSize: number,
+        sortingOptions: string,
+        accountId: number,
+        searchByValue: string,
+        recordType: string,
+        category: string
+    ): Promise<PaginatedData> {
         const skipCount: number = (page - 1) * pageSize
+        const orderBy: any = this.getOrderBy(sortingOptions)
+        const searchBy: any = this.getSearchBy(userId, accountId, searchByValue, recordType, category)
 
         const records: Record[] = (
-            await this.recordRepository.find(
-                { account: { user: { id: userId } } },
-                {
-                    orderBy: { date: QueryOrder.DESC },
-                    offset: skipCount,
-                    limit: pageSize,
-                    populate: ['account'],
-                }
-            )
+            await this.recordRepository.find(searchBy, {
+                orderBy: orderBy,
+                offset: skipCount,
+                limit: pageSize,
+                populate: ['account'],
+            })
         )?.map((record) => {
             const accountName: string = record.account?.name
             delete record['account']
             return { ...record, accountName: accountName }
         })
 
-        const recordsCount: number = await this.recordRepository.count({ account: { user: { id: userId } } })
+        const recordsCount: number = await this.recordRepository.count(searchBy)
         const pageCount: number = Math.ceil(recordsCount / pageSize)
 
         return {
             items: records,
             pageCount: pageCount,
         }
+    }
+
+    private getOrderBy(sortingOptions: string): any {
+        switch (sortingOptions) {
+            case SortingOptions.AmountAsc:
+                return { amount: QueryOrder.ASC }
+            case SortingOptions.DateAsc:
+                return { date: QueryOrder.ASC }
+            case SortingOptions.AmountDesc:
+                return { amount: QueryOrder.DESC }
+            case SortingOptions.DateDesc:
+            default:
+                return { date: QueryOrder.DESC }
+        }
+    }
+
+    private getSearchBy(
+        userId: number,
+        accountId: number,
+        searchByValue: string,
+        recordType: string,
+        category: string
+    ): any {
+        let searchBy: any
+
+        if (accountId) {
+            searchBy = { account: { id: accountId, user: { id: userId } } }
+        } else {
+            searchBy = {
+                account: {
+                    user: {
+                        id: userId,
+                    },
+                },
+            }
+        }
+
+        if (searchByValue.length) {
+            searchBy = { ...searchBy, description: { $like: `%${searchByValue}%` } }
+        }
+
+        if (recordType.length) {
+            switch (recordType) {
+                case RecordType.Expense:
+                    searchBy = { ...searchBy, isExpense: true, isTransfer: false }
+                    break
+                case RecordType.Income:
+                    searchBy = { ...searchBy, isExpense: false, isTransfer: false }
+                    break
+                case RecordType.Transfer:
+                    searchBy = { ...searchBy, isTransfer: true }
+                    break
+            }
+        }
+
+        if (category != CategoryNameToSkipInFilter) {
+            searchBy = { ...searchBy, category: Category[category] }
+        }
+
+        return searchBy
     }
 }

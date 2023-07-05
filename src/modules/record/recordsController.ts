@@ -25,7 +25,12 @@ export default class RecordsController {
         ctx.body = await this.recordsService.getPaginatedRecordsForUser(
             ctx.params.userId,
             Number(ctx.query.page),
-            Number(ctx.query.pageSize)
+            Number(ctx.query.pageSize),
+            ctx.query.sortingOption as string,
+            Number(ctx.query.accountId),
+            ctx.query.searchByValue as string,
+            ctx.query.recordType as string,
+            ctx.query.category as string
         )
         ctx.status = 200
     }

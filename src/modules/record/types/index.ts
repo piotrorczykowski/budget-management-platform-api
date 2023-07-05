@@ -17,3 +17,14 @@ export type PaginatedData = {
     items: Record[]
     pageCount: number
 }
+
+export type FetchRecordsData = {
+    userId: number
+    page: number
+    pageSize: number
+    sortingOptions: string
+    accountId: number
+    searchByValue: string
+    recordType: string
+    category: string
+}

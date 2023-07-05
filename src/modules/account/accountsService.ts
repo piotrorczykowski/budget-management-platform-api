@@ -39,8 +39,11 @@ export default class AccountsService {
         }
     }
 
-    public async getUserAccounts(userId: number): Promise<Account[]> {
-        const accounts: Account[] = await this.accountRepository.find({ user: { id: userId } })
+    public async getUserAccounts(userId: number, searchByValue: string): Promise<Account[]> {
+        const accounts: Account[] = await this.accountRepository.find({
+            user: { id: userId },
+            name: { $like: `%${searchByValue}%` },
+        })
         return accounts
     }
 }

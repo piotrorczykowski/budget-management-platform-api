@@ -22,7 +22,7 @@ export default class AccountsController {
     @route('/:userId')
     @GET()
     public async getUserAccounts(ctx: Context) {
-        ctx.body = await this.accountsService.getUserAccounts(ctx.params.userId)
+        ctx.body = await this.accountsService.getUserAccounts(ctx.params.userId, <string>ctx.query.searchByValue)
         ctx.status = 200
     }
 }

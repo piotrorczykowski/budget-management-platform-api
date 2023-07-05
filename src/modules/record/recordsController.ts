@@ -22,16 +22,16 @@ export default class RecordsController {
     @route('/:userId')
     @GET()
     public async getPaginatedRecordsForUser(ctx: Context) {
-        ctx.body = await this.recordsService.getPaginatedRecordsForUser(
-            ctx.params.userId,
-            Number(ctx.query.page),
-            Number(ctx.query.pageSize),
-            <string>ctx.query.sortingOption,
-            Number(ctx.query.accountId),
-            <string>ctx.query.searchByValue,
-            <string>ctx.query.recordType,
-            <string>ctx.query.category
-        )
+        ctx.body = await this.recordsService.getPaginatedRecordsForUser({
+            userId: ctx.params.userId,
+            page: Number(ctx.query.page),
+            pageSize: Number(ctx.query.pageSize),
+            sortingOptions: <string>ctx.query.sortingOption,
+            accountId: Number(ctx.query.accountId),
+            searchByValue: <string>ctx.query.searchByValue,
+            recordType: <string>ctx.query.recordType,
+            category: <string>ctx.query.category,
+        })
         ctx.status = 200
     }
 }

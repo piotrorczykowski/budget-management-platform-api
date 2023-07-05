@@ -1,6 +1,6 @@
 import { EntityRepository } from '@mikro-orm/mysql'
 import Record from '../../database/entities/Record'
-import { PaginatedData, RecordData } from './types'
+import { FetchRecordsData, PaginatedData, RecordData } from './types'
 import Account from '../../database/entities/Account'
 import moment from 'moment'
 import { QueryOrder } from '@mikro-orm/core'
@@ -78,16 +78,16 @@ export default class RecordsService {
         return [transferRecordFrom, transferRecordTo]
     }
 
-    public async getPaginatedRecordsForUser(
-        userId: number,
-        page: number,
-        pageSize: number,
-        sortingOptions: string,
-        accountId: number,
-        searchByValue: string,
-        recordType: string,
-        category: string
-    ): Promise<PaginatedData> {
+    public async getPaginatedRecordsForUser({
+        userId,
+        page,
+        pageSize,
+        sortingOptions,
+        accountId,
+        searchByValue,
+        recordType,
+        category,
+    }: FetchRecordsData): Promise<PaginatedData> {
         const skipCount: number = (page - 1) * pageSize
         const orderBy: any = this.getOrderBy(sortingOptions)
         const searchBy: any = this.getSearchBy(userId, accountId, searchByValue, recordType, category)

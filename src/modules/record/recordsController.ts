@@ -26,11 +26,11 @@ export default class RecordsController {
             ctx.params.userId,
             Number(ctx.query.page),
             Number(ctx.query.pageSize),
-            ctx.query.sortingOption as string,
+            <string>ctx.query.sortingOption,
             Number(ctx.query.accountId),
-            ctx.query.searchByValue as string,
-            ctx.query.recordType as string,
-            ctx.query.category as string
+            <string>ctx.query.searchByValue,
+            <string>ctx.query.recordType,
+            <string>ctx.query.category
         )
         ctx.status = 200
     }

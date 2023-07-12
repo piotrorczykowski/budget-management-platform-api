@@ -31,6 +31,16 @@ export default class AccountsService {
         return await this.accountRepository.upsert(account)
     }
 
+    public async deleteAccount(accountId: number): Promise<void> {
+        const account: Account = await this.accountRepository.findOneOrFail({ id: accountId })
+        await this.softDeleteAccount(account)
+    }
+
+    private async softDeleteAccount(account: Account): Promise<void> {
+        account.deletedAt = new Date()
+        await this.accountRepository.persistAndFlush(account)
+    }
+
     private async validateUserAccountsNumber(userId: number): Promise<void> {
         const userAccountNumber: number = await this.accountRepository.count({ user: { id: userId } })
 

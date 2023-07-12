@@ -1,10 +1,12 @@
-import { Cascade, Collection, Entity, ManyToOne, OneToMany, Property, Unique } from '@mikro-orm/core'
+import { Cascade, Collection, Entity, Index, ManyToOne, OneToMany, Property, Unique } from '@mikro-orm/core'
 import CustomBaseEntity from './CustomBaseEntity'
 import { Length } from 'class-validator'
 import User from './User'
 import Record from './Record'
+import WithSoftDelete from '../utils/withSoftDelete'
 
 @Entity()
+@WithSoftDelete()
 export default class Account extends CustomBaseEntity {
     @Property({
         length: 30,
@@ -15,6 +17,10 @@ export default class Account extends CustomBaseEntity {
 
     @Property({ type: 'decimal', precision: 10, scale: 2, default: 0.0 })
     balance!: number
+
+    @Index()
+    @Property({ nullable: true, type: 'timestamptz' })
+    deletedAt?: Date
 
     @ManyToOne({ onDelete: 'cascade' })
     user!: User

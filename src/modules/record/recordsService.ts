@@ -5,7 +5,7 @@ import Account from '../../database/entities/Account'
 import moment from 'moment'
 import { QueryOrder } from '@mikro-orm/core'
 import { Category, RecordType, SortingOptions } from '../../database/enums'
-import { CategoryNameToSkipInFilter } from './types/constants'
+import { CategoryNameToSkipInFilter, DefaultAccountName } from './types/constants'
 
 export default class RecordsService {
     recordRepository: EntityRepository<Record>
@@ -100,7 +100,7 @@ export default class RecordsService {
                 populate: ['account'],
             })
         )?.map((record) => {
-            const accountName: string = record.account?.name
+            const accountName: string = record.account?.name || DefaultAccountName
             delete record['account']
             return { ...record, accountName: accountName }
         })

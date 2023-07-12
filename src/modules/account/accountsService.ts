@@ -2,20 +2,25 @@ import { EntityRepository } from '@mikro-orm/mysql'
 import Account from '../../database/entities/Account'
 import { AccountData } from './types'
 import User from '../../database/entities/User'
+import RecordsService from '../record/recordsService'
 
 export default class AccountsService {
     accountRepository: EntityRepository<Account>
     userRepository: EntityRepository<User>
+    recordsService: RecordsService
 
     constructor({
         accountRepository,
         userRepository,
+        recordsService,
     }: {
         accountRepository: EntityRepository<Account>
         userRepository: EntityRepository<User>
+        recordsService: RecordsService
     }) {
         this.accountRepository = accountRepository
         this.userRepository = userRepository
+        this.recordsService = recordsService
     }
 
     public async createAccount(accountData: AccountData, userId: number): Promise<Account> {
@@ -29,6 +34,21 @@ export default class AccountsService {
         account.user = user
 
         return await this.accountRepository.upsert(account)
+    }
+
+    public async updateAccount(accountId: number, accountData: AccountData): Promise<Account> {
+        const account: Account = await this.accountRepository.findOneOrFail({ id: accountId })
+
+        const shouldCreateNewRecord: boolean = account.balance !== accountData.balance
+        if (shouldCreateNewRecord) {
+            await this.recordsService.createInternalRecord(accountId, accountData.balance)
+        }
+
+        account.name = accountData.name
+        account.balance = accountData.balance
+
+        await this.accountRepository.persistAndFlush(account)
+        return account
     }
 
     public async deleteAccount(accountId: number): Promise<void> {

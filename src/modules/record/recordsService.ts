@@ -44,7 +44,7 @@ export default class RecordsService {
         record.date = moment(recordData.date).utc().toDate()
         record.isExpense = recordData.isExpense
         record.category = recordData.category
-        record.description = recordData.description
+        record.description = recordData.description || ''
         record.isTransfer = <boolean>recordData.isTransfer
         record.account = this.updateAccountBalance(account, record)
 
@@ -172,5 +172,23 @@ export default class RecordsService {
         }
 
         return searchBy
+    }
+
+    public async createInternalRecord(accountId: number, accountBalance: number): Promise<void> {
+        const account: Account = await this.accountRepository.findOneOrFail({ id: accountId })
+
+        const recordType: RecordType = Number(account.balance) > accountBalance ? RecordType.Expense : RecordType.Income
+        const amount: number = Math.abs(Number(account.balance) - accountBalance)
+        const category: Category = recordType === RecordType.Expense ? Category.FinancialExpenses : Category.Income
+        const isExpense: boolean = recordType === RecordType.Expense
+
+        await this.createRecord({
+            recordType,
+            accountId,
+            amount,
+            date: new Date(),
+            category,
+            isExpense,
+        })
     }
 }

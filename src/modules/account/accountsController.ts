@@ -1,4 +1,4 @@
-import { DELETE, GET, POST, route } from 'awilix-koa'
+import { DELETE, GET, POST, PUT, route } from 'awilix-koa'
 import { Context } from 'koa'
 import AccountsService from './accountsService'
 import { AccountData } from './types'
@@ -18,6 +18,15 @@ export default class AccountsController {
         ctx.status = 201
     }
 
+    // TODO add middleware for user access validation
+    @route('/:accountId')
+    @PUT()
+    public async updateAccount(ctx: Context) {
+        ctx.body = await this.accountsService.updateAccount(ctx.params.accountId, <AccountData>ctx.request.body)
+        ctx.status = 200
+    }
+
+    // TODO add middleware for user access validation
     @route('/:accountId')
     @DELETE()
     public async deleteAccount(ctx: Context) {

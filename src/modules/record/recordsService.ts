@@ -1,3 +1,5 @@
+/* eslint-disable prefer-const */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { EntityRepository } from '@mikro-orm/mysql'
 import Record from '../../database/entities/Record'
 import { FetchRecordsData, PaginatedData, RecordData } from './types'
@@ -5,7 +7,10 @@ import Account from '../../database/entities/Account'
 import moment from 'moment'
 import { QueryOrder } from '@mikro-orm/core'
 import { Category, RecordType, SortingOptions } from '../../database/enums'
-import { CategoryNameToSkipInFilter, DefaultAccountName } from './types/constants'
+import { CategoryNameToSkipInFilter } from './types/constants'
+import { camelCase, startCase } from 'lodash'
+import logger from '../../winston'
+import _ from 'lodash'
 
 export default class RecordsService {
     recordRepository: EntityRepository<Record>
@@ -36,7 +41,7 @@ export default class RecordsService {
         }
     }
 
-    public async createRecord(recordData: RecordData): Promise<Record> {
+    private async createRecord(recordData: RecordData): Promise<Record> {
         const account: Account = await this.accountRepository.findOneOrFail({ id: recordData.accountId })
 
         const record: Record = new Record()
@@ -52,17 +57,21 @@ export default class RecordsService {
         return record
     }
 
-    private updateAccountBalance(account: Account, record: Record): Account {
+    private updateAccountBalance(account: Account, record: Record, removingRecord: boolean = false): Account {
         if (record.isExpense) {
-            account.balance = Number(account.balance) - Number(record.amount)
+            account.balance = removingRecord
+                ? Number(account.balance) + Number(record.amount)
+                : Number(account.balance) - Number(record.amount)
         } else {
-            account.balance = Number(account.balance) + Number(record.amount)
+            account.balance = removingRecord
+                ? Number(account.balance) - Number(record.amount)
+                : Number(account.balance) + Number(record.amount)
         }
 
         return account
     }
 
-    public async createTransferRecord(recordData: RecordData): Promise<Record[]> {
+    private async createTransferRecord(recordData: RecordData): Promise<Record[]> {
         const transferRecordFrom: Record = await this.createRecord({
             ...recordData,
             isExpense: true,
@@ -76,6 +85,86 @@ export default class RecordsService {
         })
 
         return [transferRecordFrom, transferRecordTo]
+    }
+
+    public async handleRecordUpdate(recordId: number, recordData: RecordData): Promise<Record | Record[]> {
+        const recordType: RecordType = recordData.recordType
+        recordType === RecordType.Transfer ? (recordData.isTransfer = true) : (recordData.isTransfer = false)
+
+        const isRecordTransfer: boolean = recordData.isTransfer
+
+        if (isRecordTransfer) {
+            return await this.handleTransferRecordUpdate(recordId, recordData)
+        } else {
+            return await this.updateRecord(recordId, recordData)
+        }
+    }
+
+    private async handleTransferRecordUpdate(recordId: number, recordData: RecordData): Promise<Record[]> {
+        const updatingRecord: Record = await this.recordRepository.findOneOrFail({ id: recordId })
+        const isUpdatingRecordExpense: boolean = updatingRecord.isExpense
+        const correspondingRecord: Record = await this.recordRepository.findOne({
+            isTransfer: true,
+            date: updatingRecord.date,
+            isExpense: !isUpdatingRecordExpense,
+        })
+
+        await this.deleteRecord(updatingRecord.id)
+        await this.deleteRecord(correspondingRecord.id)
+
+        return await this.createTransferRecord({ ...recordData })
+    }
+
+    public async updateRecord(recordId: number, recordData: RecordData): Promise<Record> {
+        logger.info('Updating normal record...')
+        const record: Record = await this.recordRepository.findOneOrFail(
+            { id: recordId },
+            {
+                filters: {
+                    softDelete: {
+                        getAll: true,
+                    },
+                },
+                populate: ['account'],
+            }
+        )
+
+        this.updateAccountBalance(record.account, record, true)
+
+        record.amount = recordData.amount
+        record.date = moment(recordData.date).utc().toDate()
+        record.category = recordData.category
+        record.description = recordData.description || ''
+
+        const isEmptyAccount: boolean = !recordData.accountId
+        if (!isEmptyAccount) {
+            const account: Account = await this.accountRepository.findOneOrFail({ id: recordData.accountId })
+            record.account = this.updateAccountBalance(account, record)
+        }
+
+        await this.recordRepository.persistAndFlush(record)
+        return record
+    }
+
+    public async deleteRecord(recordId: number): Promise<void> {
+        // TODO handle transfer delete
+        const record: Record = await this.recordRepository.findOneOrFail({ id: recordId })
+        await this.handleRecordDeletion(record)
+        await this.recordRepository.removeAndFlush(record)
+    }
+
+    private async handleRecordDeletion(record: Record): Promise<void> {
+        const account: Account = await this.accountRepository.findOne(
+            { id: record.account.id },
+            {
+                filters: {
+                    softDelete: {
+                        getAll: true,
+                    },
+                },
+            }
+        )
+        await this.updateAccountBalance(account, record, true)
     }
 
     public async getPaginatedRecordsForUser({
@@ -92,17 +181,11 @@ export default class RecordsService {
         const orderBy: any = this.getOrderBy(sortingOptions)
         const searchBy: any = this.getSearchBy(userId, accountId, searchByValue, recordType, category)
 
-        const records: Record[] = (
-            await this.recordRepository.find(searchBy, {
-                orderBy: orderBy,
-                offset: skipCount,
-                limit: pageSize,
-                populate: ['account'],
-            })
-        )?.map((record) => {
-            const accountName: string = record.account?.name || DefaultAccountName
-            delete record['account']
-            return { ...record, accountName: accountName }
+        const records: Record[] = await this.recordRepository.find(searchBy, {
+            orderBy: orderBy,
+            offset: skipCount,
+            limit: pageSize,
+            populate: ['account'],
         })
 
         const recordsCount: number = await this.recordRepository.count(searchBy)
@@ -117,14 +200,14 @@ export default class RecordsService {
     private getOrderBy(sortingOptions: string): any {
         switch (sortingOptions) {
             case SortingOptions.AmountAsc:
-                return { amount: QueryOrder.ASC }
+                return { amount: QueryOrder.ASC, isExpense: QueryOrder.ASC }
             case SortingOptions.DateAsc:
-                return { date: QueryOrder.ASC }
+                return { date: QueryOrder.ASC, isExpense: QueryOrder.ASC }
             case SortingOptions.AmountDesc:
-                return { amount: QueryOrder.DESC }
+                return { amount: QueryOrder.DESC, isExpense: QueryOrder.ASC }
             case SortingOptions.DateDesc:
             default:
-                return { date: QueryOrder.DESC }
+                return { date: QueryOrder.DESC, isExpense: QueryOrder.ASC }
         }
     }
 
@@ -168,7 +251,8 @@ export default class RecordsService {
         }
 
         if (category != CategoryNameToSkipInFilter) {
-            searchBy = { ...searchBy, category: Category[category] }
+            const categoryName: string = startCase(camelCase(category)).replace(/ /g, '')
+            searchBy = { ...searchBy, category: Category[categoryName] }
         }
 
         return searchBy

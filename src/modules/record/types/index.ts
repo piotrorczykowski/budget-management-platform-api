@@ -7,7 +7,7 @@ export type RecordData = {
     amount: number
     date: Date
     category: Category
-    isExpense: boolean
+    isExpense?: boolean
     toAccountId?: number
     isTransfer?: boolean
     description?: string

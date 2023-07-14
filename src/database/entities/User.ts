@@ -3,6 +3,7 @@ import CustomBaseEntity from './CustomBaseEntity'
 import { IsEmail, IsEnum, Length } from 'class-validator'
 import { Currency, UserRole } from '../enums'
 import Account from './Account'
+import Budget from './Budget'
 
 @Entity()
 export default class User extends CustomBaseEntity {
@@ -49,6 +50,9 @@ export default class User extends CustomBaseEntity {
 
     @OneToMany(() => Account, (account) => account.user, { cascade: [Cascade.REMOVE] })
     accounts = new Collection<Account>(this)
+
+    @OneToMany(() => Budget, (budget) => budget.user, { cascade: [Cascade.REMOVE] })
+    budgets = new Collection<Budget>(this)
 
     stripUser() {
         delete this.createdAt

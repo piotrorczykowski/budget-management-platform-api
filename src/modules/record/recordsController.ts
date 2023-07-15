@@ -1,7 +1,9 @@
-import { DELETE, GET, POST, PUT, route } from 'awilix-koa'
+import { DELETE, GET, POST, PUT, before, route } from 'awilix-koa'
 import RecordsService from './recordsService'
 import { Context } from 'koa'
 import { RecordData } from './types'
+import recordCheckMiddleware from '../../middleware/recordCheckMiddleware'
+import userCheckMiddleware from '../../middleware/userCheckMiddleware'
 
 @route('/records')
 export default class RecordsController {
@@ -11,7 +13,6 @@ export default class RecordsController {
         this.recordsService = recordsService
     }
 
-    // TODO add middleware for user access validation
     @route('/')
     @POST()
     public async createRecord(ctx: Context) {
@@ -19,7 +20,7 @@ export default class RecordsController {
         ctx.status = 201
     }
 
-    // TODO add middleware for user access validation
+    @before(recordCheckMiddleware)
     @route('/:recordId')
     @PUT()
     public async updateRecord(ctx: Context) {
@@ -27,7 +28,7 @@ export default class RecordsController {
         ctx.status = 200
     }
 
-    // TODO add middleware for user access validation
+    @before(recordCheckMiddleware)
     @route('/:recordId')
     @DELETE()
     public async deleteRecord(ctx: Context) {
@@ -35,7 +36,7 @@ export default class RecordsController {
         ctx.status = 204
     }
 
-    // TODO add middleware for user access validation
+    @before(userCheckMiddleware)
     @route('/:userId')
     @GET()
     public async getPaginatedRecordsForUser(ctx: Context) {

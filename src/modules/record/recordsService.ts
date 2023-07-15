@@ -102,16 +102,7 @@ export default class RecordsService {
 
     private async handleTransferRecordUpdate(recordId: number, recordData: RecordData): Promise<Record[]> {
         const updatingRecord: Record = await this.recordRepository.findOneOrFail({ id: recordId })
-        const isUpdatingRecordExpense: boolean = updatingRecord.isExpense
-        const correspondingRecord: Record = await this.recordRepository.findOne({
-            isTransfer: true,
-            date: updatingRecord.date,
-            isExpense: !isUpdatingRecordExpense,
-        })
-
-        await this.deleteRecord(updatingRecord.id)
-        await this.deleteRecord(correspondingRecord.id)
-
+        await this.deleteTransferRecord(updatingRecord)
         return await this.createTransferRecord({ ...recordData })
     }
 
@@ -146,14 +137,38 @@ export default class RecordsService {
         return record
     }
 
-    public async deleteRecord(recordId: number): Promise<void> {
-        // TODO handle transfer delete
+    public async handleRecordDelete(recordId: number): Promise<void> {
         const record: Record = await this.recordRepository.findOneOrFail({ id: recordId })
-        await this.handleRecordDeletion(record)
+        const isRecordTransfer: boolean = record.isTransfer
+
+        if (isRecordTransfer) {
+            await this.deleteTransferRecord(record)
+        } else {
+            await this.deleteNormalRecord(record)
+        }
+    }
+
+    private async deleteTransferRecord(record: Record): Promise<void> {
+        const isRecordExpense: boolean = record.isExpense
+        const correspondingRecord: Record = await this.recordRepository.findOne({
+            isTransfer: true,
+            date: record.date,
+            isExpense: !isRecordExpense,
+        })
+
+        await this.handleDeletedRecordAccountBalance(record)
+        await this.handleDeletedRecordAccountBalance(correspondingRecord)
+
+        await this.recordRepository.removeAndFlush(record)
+        await this.recordRepository.removeAndFlush(correspondingRecord)
+    }
+
+    private async deleteNormalRecord(record: Record): Promise<void> {
+        await this.handleDeletedRecordAccountBalance(record)
         await this.recordRepository.removeAndFlush(record)
     }
 
-    private async handleRecordDeletion(record: Record): Promise<void> {
+    private async handleDeletedRecordAccountBalance(record: Record): Promise<void> {
         const account: Account = await this.accountRepository.findOne(
             { id: record.account.id },
             {

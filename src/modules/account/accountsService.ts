@@ -32,6 +32,7 @@ export default class AccountsService {
         account.name = accountData.name
         account.balance = accountData.balance
         account.user = user
+        account.deletedAt = null
 
         return await this.accountRepository.upsert(account)
     }

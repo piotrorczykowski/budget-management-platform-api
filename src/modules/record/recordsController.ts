@@ -31,7 +31,7 @@ export default class RecordsController {
     @route('/:recordId')
     @DELETE()
     public async deleteRecord(ctx: Context) {
-        ctx.body = await this.recordsService.deleteRecord(ctx.params.recordId)
+        ctx.body = await this.recordsService.handleRecordDelete(ctx.params.recordId)
         ctx.status = 204
     }
 

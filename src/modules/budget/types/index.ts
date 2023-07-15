@@ -1,3 +1,4 @@
+import Budget from '../../../database/entities/Budget'
 import { Category } from '../../../database/enums'
 
 export type BudgetData = {
@@ -6,4 +7,9 @@ export type BudgetData = {
     startDate: Date
     endDate: Date
     categories: Category[]
+}
+
+export type PaginatedData = {
+    items: Budget[]
+    pageCount: number
 }

@@ -1,7 +1,9 @@
-import { DELETE, GET, POST, PUT, route } from 'awilix-koa'
+import { DELETE, GET, POST, PUT, before, route } from 'awilix-koa'
 import { Context } from 'koa'
 import AccountsService from './accountsService'
 import { AccountData } from './types'
+import accountCheckMiddleware from '../../middleware/accountCheckMiddleware'
+import userCheckMiddleware from '../../middleware/userCheckMiddleware'
 
 @route('/accounts')
 export default class AccountsController {
@@ -18,7 +20,7 @@ export default class AccountsController {
         ctx.status = 201
     }
 
-    // TODO add middleware for user access validation
+    @before(accountCheckMiddleware)
     @route('/:accountId')
     @PUT()
     public async updateAccount(ctx: Context) {
@@ -26,7 +28,7 @@ export default class AccountsController {
         ctx.status = 200
     }
 
-    // TODO add middleware for user access validation
+    @before(accountCheckMiddleware)
     @route('/:accountId')
     @DELETE()
     public async deleteAccount(ctx: Context) {
@@ -34,7 +36,7 @@ export default class AccountsController {
         ctx.status = 204
     }
 
-    // TODO add middleware for user access validation
+    @before(userCheckMiddleware)
     @route('/:userId')
     @GET()
     public async getUserAccounts(ctx: Context) {

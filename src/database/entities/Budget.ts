@@ -1,4 +1,4 @@
-import { Entity, Enum, ManyToOne, Property, Unique } from '@mikro-orm/core'
+import { Entity, Enum, ManyToOne, Property } from '@mikro-orm/core'
 import CustomBaseEntity from './CustomBaseEntity'
 import { IsDate, IsEnum, Length } from 'class-validator'
 import User from './User'
@@ -9,7 +9,6 @@ export default class Budget extends CustomBaseEntity {
     @Property({
         length: 30,
     })
-    @Unique()
     @Length(5, 30)
     name!: string
 

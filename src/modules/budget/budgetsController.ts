@@ -22,8 +22,7 @@ export default class BudgetsController {
     @before(userCheckMiddleware)
     @route('/:userId')
     @GET()
-    public async getUserAccounts(ctx: Context) {
-        console.log(ctx.params.userId + ctx.query.page + ctx.query.pageSize + ctx.query.searchByValue)
+    public async getUserBudgets(ctx: Context) {
         ctx.body = await this.budgetsService.getUserBudgets({
             userId: ctx.params.userId,
             page: Number(ctx.query.page),

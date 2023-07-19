@@ -37,6 +37,21 @@ export default class BudgetsService {
         return budget
     }
 
+    public async updateBudget(budgetId: number, budgetData: BudgetData): Promise<Budget> {
+        let budget: Budget = await this.budgetRepository.findOneOrFail({ id: budgetId })
+
+        budget.name = budgetData.name
+        budget.planned = budgetData.planned
+        budget.startDate = moment(budgetData.startDate).utc().startOf('day').toDate()
+        budget.endDate = moment(budgetData.endDate).utc().endOf('day').toDate()
+        budget.categories = budgetData.categories
+
+        budget = await this.budgetRecordsService.updateBudgetProgress(budget)
+
+        await this.budgetRepository.persistAndFlush(budget)
+        return budget
+    }
+
     public async deleteBudget(budgetId: number): Promise<void> {
         const budget: Budget = await this.budgetRepository.findOneOrFail({ id: budgetId })
         await this.budgetRepository.removeAndFlush(budget)

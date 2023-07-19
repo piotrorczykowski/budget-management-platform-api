@@ -1,7 +1,8 @@
-import { GET, PUT, route } from 'awilix-koa'
+import { GET, PUT, before, route } from 'awilix-koa'
 import { Context } from 'koa'
 import UsersService from './usersService'
 import { UserData } from './types'
+import userCheckMiddleware from '../../middleware/userCheckMiddleware'
 
 @route('/users')
 export default class UsersController {
@@ -18,7 +19,7 @@ export default class UsersController {
         ctx.status = 200
     }
 
-    // TODO add middleware for user access validation
+    @before(userCheckMiddleware)
     @route('/:id')
     @PUT()
     public async updateUser(ctx: Context) {

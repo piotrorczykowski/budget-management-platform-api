@@ -1,5 +1,3 @@
-/* eslint-disable prefer-const */
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import { EntityRepository } from '@mikro-orm/mysql'
 import Record from '../../database/entities/Record'
 import { FetchRecordsData, PaginatedData, RecordData } from './types'
@@ -10,21 +8,25 @@ import { Category, RecordType, SortingOptions } from '../../database/enums'
 import { CategoryNameToSkipInFilter } from './types/constants'
 import { camelCase, startCase } from 'lodash'
 import logger from '../../winston'
-import _ from 'lodash'
+import BudgetRecordsService from '../budget/budgetRecordsService'
 
 export default class RecordsService {
     recordRepository: EntityRepository<Record>
     accountRepository: EntityRepository<Account>
+    budgetRecordsService: BudgetRecordsService
 
     constructor({
         recordRepository,
         accountRepository,
+        budgetRecordsService,
     }: {
         recordRepository: EntityRepository<Record>
         accountRepository: EntityRepository<Account>
+        budgetRecordsService: BudgetRecordsService
     }) {
         this.recordRepository = recordRepository
         this.accountRepository = accountRepository
+        this.budgetRecordsService = budgetRecordsService
     }
 
     public async handleRecordCreation(recordData: RecordData): Promise<Record | Record[]> {
@@ -45,13 +47,16 @@ export default class RecordsService {
         const account: Account = await this.accountRepository.findOneOrFail({ id: recordData.accountId })
 
         const record: Record = new Record()
-        record.amount = recordData.amount
+        record.amount = Number(recordData.amount)
         record.date = moment(recordData.date).utc().toDate()
         record.isExpense = recordData.isExpense
         record.category = recordData.category
         record.description = recordData.description || ''
         record.isTransfer = <boolean>recordData.isTransfer
         record.account = this.updateAccountBalance(account, record)
+
+        const amountChange: number = Number(record.amount)
+        await this.budgetRecordsService.handleRecordManagement(record, amountChange)
 
         await this.recordRepository.persistAndFlush(record)
         return record
@@ -122,16 +127,16 @@ export default class RecordsService {
 
         this.updateAccountBalance(record.account, record, true)
 
-        record.amount = recordData.amount
+        const amountChange: number = Number(recordData.amount) - Number(record.amount)
+        await this.budgetRecordsService.handleRecordManagement(record, amountChange)
+
+        record.amount = Number(recordData.amount)
         record.date = moment(recordData.date).utc().toDate()
         record.category = recordData.category
         record.description = recordData.description || ''
 
-        const isEmptyAccount: boolean = !recordData.accountId
-        if (!isEmptyAccount) {
-            const account: Account = await this.accountRepository.findOneOrFail({ id: recordData.accountId })
-            record.account = this.updateAccountBalance(account, record)
-        }
+        const account: Account = await this.accountRepository.findOneOrFail({ id: recordData.accountId })
+        record.account = this.updateAccountBalance(account, record)
 
         await this.recordRepository.persistAndFlush(record)
         return record
@@ -179,6 +184,10 @@ export default class RecordsService {
                 },
             }
         )
+
+        const amountChange: number = -1 * Number(record.amount)
+        await this.budgetRecordsService.handleRecordManagement(record, amountChange)
+
         await this.updateAccountBalance(account, record, true)
     }
 

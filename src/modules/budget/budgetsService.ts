@@ -37,6 +37,11 @@ export default class BudgetsService {
         return budget
     }
 
+    public async deleteBudget(budgetId: number): Promise<void> {
+        const budget: Budget = await this.budgetRepository.findOneOrFail({ id: budgetId })
+        await this.budgetRepository.removeAndFlush(budget)
+    }
+
     public async getUserBudgets({
         userId,
         page,

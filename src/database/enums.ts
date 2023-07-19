@@ -20,6 +20,7 @@ export enum Category {
     Communication = 'Communication',
     FinancialExpenses = 'Financial Expenses',
     Income = 'Income',
+    Transfer = 'Transfer',
     Other = 'Other',
 }
 

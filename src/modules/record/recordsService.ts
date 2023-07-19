@@ -80,13 +80,11 @@ export default class RecordsService {
         const transferRecordFrom: Record = await this.createRecord({
             ...recordData,
             isExpense: true,
-            category: Category.FinancialExpenses,
         })
         const transferRecordTo: Record = await this.createRecord({
             ...recordData,
             isExpense: false,
             accountId: recordData.toAccountId,
-            category: Category.FinancialExpenses,
         })
 
         return [transferRecordFrom, transferRecordTo]

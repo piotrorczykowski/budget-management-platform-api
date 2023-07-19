@@ -26,8 +26,8 @@ export default class BudgetsService {
         let budget: Budget = new Budget()
         budget.name = budgetData.name
         budget.planned = budgetData.planned
-        budget.startDate = moment(budgetData.startDate).utc().startOf('day').toDate()
-        budget.endDate = moment(budgetData.endDate).utc().endOf('day').toDate()
+        budget.startDate = moment(budgetData.startDate).startOf('day').toDate()
+        budget.endDate = moment(budgetData.endDate).endOf('day').subtract(1, 'second').toDate() // workaround for mikroorm saving incorrect date
         budget.categories = budgetData.categories
         budget.user = user
 
@@ -42,8 +42,8 @@ export default class BudgetsService {
 
         budget.name = budgetData.name
         budget.planned = budgetData.planned
-        budget.startDate = moment(budgetData.startDate).utc().startOf('day').toDate()
-        budget.endDate = moment(budgetData.endDate).utc().endOf('day').toDate()
+        budget.startDate = moment(budgetData.startDate).startOf('day').toDate()
+        budget.endDate = moment(budgetData.endDate).endOf('day').subtract(1, 'second').toDate()
         budget.categories = budgetData.categories
 
         budget = await this.budgetRecordsService.updateBudgetProgress(budget)
@@ -78,6 +78,7 @@ export default class BudgetsService {
             {
                 orderBy: {
                     endDate: QueryOrder.DESC,
+                    name: QueryOrder.ASC,
                 },
                 offset: skipCount,
                 limit: pageSize,

@@ -1,4 +1,4 @@
-import { DELETE, GET, POST, before, route } from 'awilix-koa'
+import { DELETE, GET, POST, PUT, before, route } from 'awilix-koa'
 import { Context } from 'koa'
 import BudgetsService from './budgetsService'
 import { BudgetData } from './types'
@@ -17,6 +17,13 @@ export default class BudgetsController {
     public async createBudget(ctx: Context) {
         ctx.body = await this.budgetsService.createBudget(ctx.state.user, <BudgetData>ctx.request.body)
         ctx.status = 201
+    }
+
+    @route('/:budgetId')
+    @PUT()
+    public async updateBudget(ctx: Context) {
+        ctx.body = await this.budgetsService.updateBudget(ctx.params.budgetId, <BudgetData>ctx.request.body)
+        ctx.status = 200
     }
 
     @route('/:budgetId')

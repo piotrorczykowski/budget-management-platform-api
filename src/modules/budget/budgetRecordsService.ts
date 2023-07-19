@@ -33,7 +33,7 @@ export default class BudgetRecordsService {
         )
 
         const sumOfUserRecordsForBudget: number = userRecordsForBudget.length
-            ? _.sumBy(userRecordsForBudget, (record) => record.amount)
+            ? _.sumBy(userRecordsForBudget, (record) => Number(record.amount))
             : 0
 
         budget.spent = sumOfUserRecordsForBudget

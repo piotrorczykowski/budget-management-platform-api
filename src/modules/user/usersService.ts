@@ -1,15 +1,50 @@
-import { EntityRepository } from '@mikro-orm/core'
+import { EntityRepository, QueryOrder } from '@mikro-orm/core'
 import bcrypt from 'bcrypt'
 import User from '../../database/entities/User'
 import { UserRole } from '../../database/enums'
 import logger from '../../winston'
-import { UserData } from './types'
+import { PaginatedData, UserData } from './types'
 
 export default class UsersService {
     userRepository: EntityRepository<User>
 
     constructor({ userRepository }: { userRepository: EntityRepository<User> }) {
         this.userRepository = userRepository
+    }
+
+    public async getUsers({
+        page,
+        pageSize,
+        searchByValue,
+    }: {
+        page: number
+        pageSize: number
+        searchByValue: string
+    }): Promise<PaginatedData> {
+        const skipCount: number = (page - 1) * pageSize
+
+        const users: User[] = await this.userRepository.find(
+            {
+                fullName: { $like: `%${searchByValue}%` },
+            },
+            {
+                orderBy: {
+                    fullName: QueryOrder.ASC,
+                },
+                offset: skipCount,
+                limit: pageSize,
+            }
+        )
+
+        const usersCount: number = await this.userRepository.count({
+            fullName: { $like: `%${searchByValue}%` },
+        })
+        const pageCount: number = Math.ceil(usersCount / pageSize)
+
+        return {
+            items: users,
+            pageCount: pageCount,
+        }
     }
 
     public async createUser({

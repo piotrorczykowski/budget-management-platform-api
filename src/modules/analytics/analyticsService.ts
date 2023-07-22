@@ -2,7 +2,7 @@ import { EntityRepository } from '@mikro-orm/core'
 import Record from '../../database/entities/Record'
 import _ from 'lodash'
 import moment from 'moment'
-import { CashFlowType } from './types'
+import { CashFlowType, ExpensesStructureType } from './types'
 
 export default class AnalyticsService {
     recordRepository: EntityRepository<Record>
@@ -11,9 +11,9 @@ export default class AnalyticsService {
         this.recordRepository = recordRepository
     }
 
-    public async getCashFlow(userId, dateForCashFlowInfo: Date): Promise<CashFlowType> {
-        const startOfMonth: Date = moment(dateForCashFlowInfo).startOf('month').toDate()
-        const endOfMonth: Date = moment(dateForCashFlowInfo).endOf('month').toDate()
+    public async getCashFlow(userId: number, monthForInfo: Date): Promise<CashFlowType> {
+        const startOfMonth: Date = moment(monthForInfo).startOf('month').toDate()
+        const endOfMonth: Date = moment(monthForInfo).endOf('month').toDate()
 
         const incomes: Record[] = await this.recordRepository.find({
             isExpense: false,
@@ -51,5 +51,35 @@ export default class AnalyticsService {
             income: Number(incomesSum.toFixed(2)),
             expenses: Number(expensesSum.toFixed(2)),
         }
+    }
+
+    public async getExpensesStructure(userId: number, monthForInfo: Date): Promise<ExpensesStructureType> {
+        const startOfMonth: Date = moment(monthForInfo).startOf('month').toDate()
+        const endOfMonth: Date = moment(monthForInfo).endOf('month').toDate()
+
+        const expenses: Record[] = await this.recordRepository.find({
+            isExpense: true,
+            isTransfer: false,
+            date: {
+                $gte: startOfMonth,
+                $lte: endOfMonth,
+            },
+            account: {
+                user: {
+                    id: userId,
+                },
+            },
+        })
+
+        const groupedExpenses: _.Dictionary<Record[]> = _.groupBy(expenses, 'category')
+
+        const expensesStructure: ExpensesStructureType = []
+
+        _.forEach(groupedExpenses, function (value, key) {
+            const expensesSum: number = _.sumBy(value, (v) => Number(v.amount))
+            expensesStructure.push({ title: key, value: expensesSum })
+        })
+
+        return expensesStructure
     }
 }

@@ -10,11 +10,19 @@ export default class AnalyticsController {
         this.analyticsService = analyticsService
     }
 
-    @route('/cash-flow/:date')
+    @route('/:userId/cash-flow/:date')
     @GET()
     public async getCashFlow(ctx: Context) {
         const dateFromTimestamp: Date = new Date(ctx.params.date * 1000)
-        ctx.body = await this.analyticsService.getCashFlow(ctx.state.user.id, dateFromTimestamp)
+        ctx.body = await this.analyticsService.getCashFlow(ctx.params.userId, dateFromTimestamp)
+        ctx.status = 200
+    }
+
+    @route('/:userId/expenses-structure/:date')
+    @GET()
+    public async getExpensesStructure(ctx: Context) {
+        const dateFromTimestamp: Date = new Date(ctx.params.date * 1000)
+        ctx.body = await this.analyticsService.getExpensesStructure(ctx.params.userId, dateFromTimestamp)
         ctx.status = 200
     }
 }

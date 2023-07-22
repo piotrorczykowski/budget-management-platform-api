@@ -87,6 +87,7 @@ export default class BudgetsService {
 
         const budgetsCount: number = await this.budgetRepository.count({
             name: { $like: `%${searchByValue}%` },
+            user: { id: userId },
         })
         const pageCount: number = Math.ceil(budgetsCount / pageSize)
 

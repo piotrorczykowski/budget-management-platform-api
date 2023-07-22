@@ -5,7 +5,7 @@ import Account from '../../database/entities/Account'
 import moment from 'moment'
 import { QueryOrder } from '@mikro-orm/core'
 import { Category, RecordType, SortingOptions } from '../../database/enums'
-import { CategoryNameToSkipInFilter } from './types/constants'
+import { CategoryNameToSkipInFilter, RecordTypeToSkipInFilter } from './types/constants'
 import { camelCase, startCase } from 'lodash'
 import logger from '../../winston'
 import BudgetRecordsService from '../budget/budgetRecordsService'
@@ -258,7 +258,7 @@ export default class RecordsService {
             searchBy = { ...searchBy, description: { $like: `%${searchByValue}%` } }
         }
 
-        if (recordType.length) {
+        if (recordType != RecordTypeToSkipInFilter) {
             switch (recordType) {
                 case RecordType.Expense:
                     searchBy = { ...searchBy, isExpense: true, isTransfer: false }

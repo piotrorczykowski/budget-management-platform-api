@@ -1,4 +1,4 @@
-import { Cascade, Collection, Entity, Index, ManyToOne, OneToMany, Property, Unique } from '@mikro-orm/core'
+import { Cascade, Collection, Entity, Index, ManyToOne, OneToMany, Property } from '@mikro-orm/core'
 import CustomBaseEntity from './CustomBaseEntity'
 import { Length } from 'class-validator'
 import User from './User'
@@ -12,7 +12,6 @@ export default class Account extends CustomBaseEntity {
     @Property({
         length: 30,
     })
-    @Unique()
     @Length(5, 30)
     name!: string
 

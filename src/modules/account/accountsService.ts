@@ -34,7 +34,8 @@ export default class AccountsService {
         account.user = user
         account.deletedAt = null
 
-        return await this.accountRepository.upsert(account)
+        await this.accountRepository.persistAndFlush(account)
+        return account
     }
 
     public async updateAccount(accountId: number, accountData: AccountData): Promise<Account> {

@@ -4,6 +4,7 @@ import { Length } from 'class-validator'
 import User from './User'
 import Record from './Record'
 import WithSoftDelete from '../utils/withSoftDelete'
+import HistoricalAccountBalance from './HistoricalAccountBalance'
 
 @Entity()
 @WithSoftDelete()
@@ -27,4 +28,9 @@ export default class Account extends CustomBaseEntity {
 
     @OneToMany(() => Record, (record) => record.account, { cascade: [Cascade.REMOVE] })
     records = new Collection<Record>(this)
+
+    @OneToMany(() => HistoricalAccountBalance, (HistoricalAccountBalance) => HistoricalAccountBalance.account, {
+        cascade: [Cascade.REMOVE],
+    })
+    historicalAccountBalances = new Collection<HistoricalAccountBalance>(this)
 }

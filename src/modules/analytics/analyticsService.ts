@@ -142,7 +142,7 @@ export default class AnalyticsService {
 
         const historicalBalance: HistoricalAccountBalance = Array.from(account.historicalAccountBalances)?.find(
             (historicalBalance) =>
-                moment(historicalBalance.date).utc().isSame(moment().subtract(0, 'month').endOf('month'), 'month')
+                moment(historicalBalance.date).utc().isSame(moment(monthForInfo).endOf('month'), 'month')
         )
 
         const balanceInfoArray: AccountBalanceInfoType = []
@@ -151,11 +151,12 @@ export default class AnalyticsService {
         const isHistoricalMonth: boolean = moment(monthForInfo).utc().isBefore(moment().utc(), 'month')
 
         let balance: number = historicalBalanceExists ? Number(historicalBalance.balance) : Number(account.balance)
-        const daysArray: Date[] = historicalBalanceExists
-            ? getDaysArrayForGivenMonth(monthForInfo).reverse()
-            : getDaysArrayForGivenMonth(monthForInfo)
-                  .reverse()
-                  .filter((day) => moment(day).utc().isSameOrBefore(moment().utc(), 'day'))
+        const daysArray: Date[] =
+            historicalBalanceExists || isHistoricalMonth
+                ? getDaysArrayForGivenMonth(monthForInfo).reverse()
+                : getDaysArrayForGivenMonth(monthForInfo)
+                      .reverse()
+                      .filter((day) => moment(day).utc().isSameOrBefore(moment().utc(), 'day'))
 
         for (const day of daysArray) {
             if (!historicalBalanceExists && isHistoricalMonth) {

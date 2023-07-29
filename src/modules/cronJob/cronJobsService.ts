@@ -9,11 +9,11 @@ export default class CronJobsService {
     }
 
     public async forceJobs(): Promise<void> {
-        return null
+        await this.analyticsService.saveHistoricalAccountBalance()
     }
 
     public saveHistoricalAccountBalanceJob() {
         // first day of the month
-        return new CronJob('0 0 * 1 * *', this.analyticsService.saveHistoricalAccountBalanceJob)
+        return new CronJob('0 0 * 1 * *', this.analyticsService.saveHistoricalAccountBalance)
     }
 }

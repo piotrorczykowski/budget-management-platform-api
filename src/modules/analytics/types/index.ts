@@ -9,3 +9,5 @@ type PieChartEntryType = {
 }
 
 export type ExpensesStructureType = PieChartEntryType[]
+
+export type AccountBalanceInfoTyp = [Date, number][]

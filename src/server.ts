@@ -17,7 +17,7 @@ import identityMapHandler from './middleware/identityMapHandler'
 import morganMiddleware from './middleware/morgan'
 import logger from './winston'
 import authMiddleware from './middleware/authMiddleware'
-// import CronJobsService from './modules/cronJob/cronJobsService'
+import CronJobsService from './modules/cronJob/cronJobsService'
 
 let container: AwilixContainer = null
 
@@ -51,8 +51,8 @@ initializeORM()
         app.listen(config.port)
         logger.info(`Server is listening on port: ${config.port}...`)
 
-        // const cronJobsService: CronJobsService = container.resolve('cronJobsService')
-        // cronJobsService.saveHistoricalAccountBalanceJob().start()
+        const cronJobsService: CronJobsService = container.resolve('cronJobsService')
+        cronJobsService.saveHistoricalAccountBalanceJob().start()
     })
     .catch((error) => {
         logger.error(error.message)

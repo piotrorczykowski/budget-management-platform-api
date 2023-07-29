@@ -1,10 +1,8 @@
 import { Context } from 'koa'
-import { route, POST, GET } from 'awilix-koa'
+import { route, POST } from 'awilix-koa'
 import AuthService from './authService'
 import { ResetPasswordData, UserData, UserSignInData } from './types'
 import AnalyticsService from '../analytics/analyticsService'
-import moment from 'moment'
-// import { getDaysArrayForGivenMonth } from '../../utils/dateUtils'
 
 @route('/auth')
 export default class AuthController {
@@ -14,16 +12,6 @@ export default class AuthController {
     constructor({ authService, analyticsService }: { authService: AuthService; analyticsService: AnalyticsService }) {
         this.authService = authService
         this.analyticsService = analyticsService
-    }
-
-    @route('/test')
-    @GET()
-    public async test(ctx: Context): Promise<void> {
-        const date: Date = moment().subtract(0, 'month').toDate()
-
-        // await this.analyticsService.saveHistoricalAccountBalanceJob()
-        ctx.body = await this.analyticsService.getAccountsBalanceTrend(1, date)
-        ctx.status = 200
     }
 
     @route('/signUp')

@@ -99,32 +99,20 @@ export default class AnalyticsService {
     }
 
     public async saveHistoricalAccountBalance(): Promise<void> {
-        const accounts: Account[] = await this.accountRepository.find(
-            {},
-            {
-                populate: ['historicalAccountBalances'],
-            }
-        )
+        const accounts: Account[] = await this.accountRepository.find({}, { populate: ['historicalAccountBalances'] })
 
         const historicalAccountBalances: HistoricalAccountBalance[] = []
-
         for (const account of accounts) {
             const historicalBalance: HistoricalAccountBalance = Array.from(account.historicalAccountBalances)?.find(
                 (historicalBalance) =>
                     moment(historicalBalance.date).utc().isSame(moment().subtract(1, 'month').endOf('month'), 'month')
             )
-            const historicalBalanceAlreadyExists: boolean = !!historicalBalance
 
-            if (historicalBalanceAlreadyExists) {
-                historicalBalance.balance = account.balance
-                historicalAccountBalances.push(historicalBalance)
-            } else {
+            if (historicalBalance) {
                 const historicalAccountBalance: HistoricalAccountBalance = new HistoricalAccountBalance()
-
                 historicalAccountBalance.balance = account.balance
                 historicalAccountBalance.date = moment().subtract(1, 'month').endOf('month').toDate()
                 historicalAccountBalance.account = account
-
                 historicalAccountBalances.push(historicalAccountBalance)
             }
         }

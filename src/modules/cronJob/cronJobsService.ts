@@ -14,6 +14,6 @@ export default class CronJobsService {
 
     public saveHistoricalAccountBalanceJob() {
         // first day of the month
-        return new CronJob('0 0 * 1 * *', this.analyticsService.saveHistoricalAccountBalance)
+        return new CronJob('0 0 0 1 * *', this.analyticsService.saveHistoricalAccountBalance)
     }
 }

@@ -108,7 +108,7 @@ export default class AnalyticsService {
                     moment(historicalBalance.date).utc().isSame(moment().subtract(1, 'month').endOf('month'), 'month')
             )
 
-            if (historicalBalance) {
+            if (!historicalBalance) {
                 const historicalAccountBalance: HistoricalAccountBalance = new HistoricalAccountBalance()
                 historicalAccountBalance.balance = account.balance
                 historicalAccountBalance.date = moment().subtract(1, 'month').endOf('month').toDate()
